@@ -36,7 +36,9 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_bg));
+        setUpActionBar();
+
+
 
         setContentView(R.layout.activity_main);
 
@@ -50,6 +52,13 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
+    private void setUpActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayUseLogoEnabled(true);
+        //actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_bg));
+
+    }
+
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
@@ -57,6 +66,7 @@ public class MainActivity extends ActionBarActivity
         //fragmentManager.beginTransaction()
         //       .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
         //        .commit();
+        onSectionAttached(position + 1);
     }
 
     public void onSectionAttached(int number) {

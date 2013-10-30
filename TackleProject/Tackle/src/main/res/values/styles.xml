@@ -4,12 +4,21 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:actionOverflowButtonStyle">@style/MyOverFlowButton</item>
-
+        <item name="android:actionBarStyle">@style/MyActionBarStyle</item>
         <!-- Customize your theme here. -->
     </style>
 
     <style name="MyOverFlowButton" parent="Widget.AppCompat.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_overflow</item>
+    </style>
+
+    <style name="MyActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="android:background">@drawable/action_bar_bg</item>
+        <item name="android:titleTextStyle">@style/MyTitleTextStyle</item>
+    </style>
+
+    <style name="MyTitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">#FFF</item>
     </style>
     
 
