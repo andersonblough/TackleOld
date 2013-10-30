@@ -243,11 +243,26 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
-        switch (item.getItemId()) {
-            case R.id.action_example:
-                Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()){
+            case R.id.add_todo:
+                Toast.makeText(getActivity(), "Add To-do", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.add_list:
+                Toast.makeText(getActivity(), "Add List", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.add_note:
+                Toast.makeText(getActivity(), "Add Note", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.add_event:
+                Toast.makeText(getActivity(), "Add Event", Toast.LENGTH_SHORT).show();
                 return true;
         }
+
+        //switch (item.getItemId()) {
+        //   case R.id.action_example:
+        //        Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+        //        return true;
+        //}
 
         return super.onOptionsItemSelected(item);
     }

@@ -1,8 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_example"
-        android:title="@string/action_example"
-        app:showAsAction="withText|ifRoom" />
+    <item
+        android:id="@+id/add"
+        android:title="ADD"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_add">
+        <menu>
+            <item android:id="@+id/add_todo" android:title="to-do" android:icon="@drawable/ic_todo" />
+            <item android:id="@+id/add_list" android:title="list" android:icon="@drawable/ic_list"/>
+            <item android:id="@+id/add_note" android:title="note" android:icon="@drawable/ic_note"/>
+            <item android:id="@+id/add_event" android:title="event" android:icon="@drawable/ic_event"/>
+        </menu>
+    </item>
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

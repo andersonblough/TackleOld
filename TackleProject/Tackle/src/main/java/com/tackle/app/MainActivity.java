@@ -38,8 +38,6 @@ public class MainActivity extends ActionBarActivity
 
         setUpActionBar();
 
-
-
         setContentView(R.layout.activity_main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
