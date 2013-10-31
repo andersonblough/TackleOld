@@ -6,10 +6,10 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_add">
         <menu>
-            <item android:id="@+id/add_todo" android:title="to-do" android:icon="@drawable/ic_todo" />
-            <item android:id="@+id/add_list" android:title="list" android:icon="@drawable/ic_list"/>
-            <item android:id="@+id/add_note" android:title="note" android:icon="@drawable/ic_note"/>
-            <item android:id="@+id/add_event" android:title="event" android:icon="@drawable/ic_event"/>
+            <item android:id="@+id/add_todo" android:title="To-do" android:icon="@drawable/ic_todo" />
+            <item android:id="@+id/add_list" android:title="List" android:icon="@drawable/ic_list"/>
+            <item android:id="@+id/add_note" android:title="Note" android:icon="@drawable/ic_note"/>
+            <item android:id="@+id/add_event" android:title="Event" android:icon="@drawable/ic_event"/>
         </menu>
     </item>
     <item android:id="@+id/action_settings"
