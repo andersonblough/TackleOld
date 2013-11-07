@@ -1,11 +1,10 @@
 package com.tackle.app;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,9 +17,21 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.tackle.app.fragments.DateHeaderFragment;
+import com.tackle.app.fragments.DayHeaderFragment;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    public static final String WEEK_VIEW = "week view";
+
+    private DateHeaderFragment dateHeaderFragment;
+    private DayHeaderFragment dayHeaderFragment;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -38,9 +49,8 @@ public class MainActivity extends ActionBarActivity
 
         setUpActionBar();
 
-
-
         setContentView(R.layout.activity_main);
+        setUpDateHeader();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -50,6 +60,16 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
+
+    private void setUpDateHeader() {
+
+        FragmentManager manager = getFragmentManager();
+
+        if (dateHeaderFragment == null){
+            dateHeaderFragment = new DateHeaderFragment();
+        }
+        manager.beginTransaction().replace(R.id.fragment_date_bar, dateHeaderFragment, WEEK_VIEW).commit();
     }
 
     private void setUpActionBar() {
@@ -116,46 +136,43 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
+    public void dayClicked(View view){
+        int day = 0;
+        switch (view.getId()){
+            case R.id.day1:
+                day = 0;
+                break;
+            case R.id.day2:
+                day = 1;
+                break;
+            case R.id.day3:
+                day = 2;
+                break;
+            case R.id.day4:
+                day = 3;
+                break;
+            case R.id.day5:
+                day = 4;
+                break;
         }
 
-        public PlaceholderFragment() {
-        }
+        long time = dateHeaderFragment.daysOfWeek[day];
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        String date = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
+        dayHeaderFragment = new DayHeaderFragment(date);
 
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
+        FragmentManager manager = getFragmentManager();
+        manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                .add(R.id.fragment_date_bar, dayHeaderFragment).hide(dateHeaderFragment).commit();
+
+    }
+
+    public void switchToWeek(View view){
+        FragmentManager manager = getFragmentManager();
+        manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                .show(dateHeaderFragment).detach(dayHeaderFragment).commit();
     }
 
 }

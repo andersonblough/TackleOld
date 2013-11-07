@@ -41,8 +41,7 @@
             android:id="@+id/fragment_date_bar"
             android:layout_height="44dp"
             android:layout_width="match_parent"
-            android:layout_alignBottom="@+id/month_image"
-            android:background="#dfff"/>
+            android:layout_alignBottom="@+id/month_image"/>
 
         <ListView
             android:id="@+id/tackle_list"
