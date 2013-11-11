@@ -12,6 +12,13 @@
             <item android:id="@+id/add_event" android:title="Event" android:icon="@drawable/ic_event"/>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/month"
+        android:title="Month View"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_month" />
+
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

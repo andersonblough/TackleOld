@@ -1,23 +1,14 @@
 package com.tackle.app;
 
-import android.app.Activity;
 import android.app.FragmentManager;
-import android.graphics.drawable.ColorDrawable;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
@@ -132,6 +123,10 @@ public class MainActivity extends ActionBarActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
+            case R.id.month:
+                Intent intent = new Intent(this, MonthActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
