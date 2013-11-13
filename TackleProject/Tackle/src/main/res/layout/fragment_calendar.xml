@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF">
+
+    <ImageView
+        android:id="@+id/month_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/april"/>
+
+    <TextView
+        android:id="@+id/month_text"
+        android:layout_height="44dp"
+        android:layout_width="match_parent"
+        android:layout_alignBottom="@+id/month_image"
+        android:background="#CFFF"
+        android:text="April 2013"
+        android:textSize="22dp"
+        android:textColor="#000"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"/>
+
+    <LinearLayout
+        android:id="@+id/days_of_week"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_below="@+id/month_image">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="sun"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="mon"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="tue"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="wed"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="thu"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="fri"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="sat"
+            android:textColor="#444"
+            android:fontFamily="sans-serif-light"/>
+
+    </LinearLayout>
+
+    <GridView
+        android:id="@+id/calendar_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_below="@+id/days_of_week"
+        android:numColumns="7"/>
+
+</RelativeLayout>

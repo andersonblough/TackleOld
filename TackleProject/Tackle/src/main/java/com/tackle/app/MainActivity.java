@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.Toast;
 
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
@@ -33,6 +34,23 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1){
+            if (resultCode == RESULT_OK){
+                long time = data.getLongExtra("result", 1);
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(time);
+                String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
+                int year = cal.get(Calendar.YEAR);
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+
+                String date = month + " " + String.valueOf(day) + " " + String.valueOf(year);
+                Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +143,7 @@ public class MainActivity extends ActionBarActivity
                 return true;
             case R.id.month:
                 Intent intent = new Intent(this, MonthActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
         }
         return super.onOptionsItemSelected(item);
     }
