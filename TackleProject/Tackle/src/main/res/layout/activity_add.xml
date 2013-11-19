@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E2E2E2">
+
+    <ImageView
+        android:id="@+id/month_image"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:adjustViewBounds="true"
+        android:src="@drawable/november"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_alignBottom="@+id/month_image"
+        android:orientation="horizontal"
+        android:background="#CFFF">
+
+        <EditText
+            android:id="@+id/tackle_edit_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:background="@android:color/transparent"
+            android:capitalize="sentences"
+            android:singleLine="true"
+            android:imeActionLabel="ADD"
+            android:textCursorDrawable="@null"
+            android:hint="tackle something"
+            android:textColor="#000"
+            android:fontFamily="sans-serif-light"
+            android:textSize="20dp"
+            android:textColorHint="#808284"/>
+
+        <FrameLayout
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/selector_day"
+            android:clickable="true"
+            android:onClick="onMoreClicked">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more"/>
+
+        </FrameLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_height="6dp"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/month_image"
+        android:background="@drawable/gradient_down" />
+
+
+</RelativeLayout>

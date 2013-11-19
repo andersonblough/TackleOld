@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
+import android.view.animation.Animation;
 import android.widget.Toast;
 
 import com.tackle.app.fragments.DateHeaderFragment;
@@ -55,9 +56,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setUpActionBar();
-
         setContentView(R.layout.activity_main);
         setUpDateHeader();
 
@@ -71,14 +70,20 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
-    private void setUpDateHeader() {
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         FragmentManager manager = getFragmentManager();
+        manager.beginTransaction().replace(R.id.fragment_date_bar, dateHeaderFragment, WEEK_VIEW).commit();
+
+    }
+
+    private void setUpDateHeader() {
 
         if (dateHeaderFragment == null){
             dateHeaderFragment = new DateHeaderFragment();
         }
-        manager.beginTransaction().replace(R.id.fragment_date_bar, dateHeaderFragment, WEEK_VIEW).commit();
     }
 
     private void setUpActionBar() {

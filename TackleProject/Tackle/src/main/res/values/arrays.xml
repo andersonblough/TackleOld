@@ -14,4 +14,11 @@
         <item>@drawable/november</item>
         <item>@drawable/december</item>
     </array>
+
+    <array name="types">
+        <item>To-Do</item>
+        <item>List</item>
+        <item>Note</item>
+        <item>Event</item>
+    </array>
 </resources>

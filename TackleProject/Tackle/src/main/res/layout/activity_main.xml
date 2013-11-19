@@ -21,12 +21,6 @@
             android:adjustViewBounds="true"
             android:src="@drawable/november"/>
 
-        View
-            android:layout_height="20dp"
-            android:layout_width="match_parent"
-            android:background="@drawable/gradient_up"
-            android:layout_above="@+id/fragment_date_bar"/>
-
         <TextView
             android:id="@+id/tv_month"
             android:layout_height="wrap_content"

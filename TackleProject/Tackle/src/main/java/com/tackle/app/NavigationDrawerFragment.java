@@ -1,5 +1,6 @@
 package com.tackle.app;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -245,16 +246,16 @@ public class NavigationDrawerFragment extends Fragment {
 
         switch (item.getItemId()){
             case R.id.add_todo:
-                Toast.makeText(getActivity(), "Add To-do", Toast.LENGTH_SHORT).show();
+                addItem(item.getTitle());
                 return true;
             case R.id.add_list:
-                Toast.makeText(getActivity(), "Add List", Toast.LENGTH_SHORT).show();
+                addItem(item.getTitle());
                 return true;
             case R.id.add_note:
-                Toast.makeText(getActivity(), "Add Note", Toast.LENGTH_SHORT).show();
+                addItem(item.getTitle());
                 return true;
             case R.id.add_event:
-                Toast.makeText(getActivity(), "Add Event", Toast.LENGTH_SHORT).show();
+                addItem(item.getTitle());
                 return true;
         }
 
@@ -265,6 +266,13 @@ public class NavigationDrawerFragment extends Fragment {
         //}
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addItem(CharSequence title) {
+        String type = title.toString().toLowerCase();
+        Intent intent = new Intent(getActivity(), AddActivity.class);
+        intent.putExtra("type", type);
+        startActivity(intent);
     }
 
     /**
