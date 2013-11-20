@@ -32,6 +32,7 @@
             android:capitalize="sentences"
             android:singleLine="true"
             android:imeActionLabel="ADD"
+            android:imeActionId="@+id/add"
             android:textCursorDrawable="@null"
             android:hint="tackle something"
             android:textColor="#000"

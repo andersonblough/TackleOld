@@ -21,4 +21,34 @@
         <item>Note</item>
         <item>Event</item>
     </array>
+
+    <array name="quotes" >
+        <item>You are never too old to set another goal or to dream a new dream.</item>
+        <item>With the new day comes new strength and new thoughts.</item>
+        <item>If you can dream it, you can do it.</item>
+        <item>Either you run the day or the day runs you.</item>
+        <item>In order to succeed, we must first believe that we can.</item>
+        <item>Well done is better than well said.</item>
+        <item>What you do today can improve all your tomorrows.</item>
+        <item>A goal is a dream with a deadline.</item>
+        <item>The most effective way to do it, is to do it.</item>
+        <item>The hardships that I encountered in the past will help me succeed in the future.</item>
+        <item>The more we do, the more we can do.</item>
+        <item>When life happens, tackle it.</item>
+    </array>
+
+    <array name="authors">
+        <item>C. S. Lewis </item>
+        <item>Eleanor Roosevelt</item>
+        <item>Walt Disney</item>
+        <item>Jim Rohn</item>
+        <item>Nikos Kazantzakis</item>
+        <item>Benjamin Franklin</item>
+        <item>Ralph Marston</item>
+        <item>Napoleon Hill</item>
+        <item>Amelia Earhart</item>
+        <item>Philip Emeagwali</item>
+        <item>William Hazlitt</item>
+        <item>Bill Anderson-Blough</item>
+    </array>
 </resources>

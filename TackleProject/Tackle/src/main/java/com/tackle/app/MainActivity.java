@@ -10,16 +10,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
 import android.view.animation.Animation;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
+import com.tackle.app.views.QuoteView;
 
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Random;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private QuoteView quoteView;
 
     public static final String WEEK_VIEW = "week view";
 
@@ -68,6 +73,23 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        setUpQuote();
+
+        ListView listView = (ListView) findViewById(R.id.tackle_list);
+        listView.setEmptyView(quoteView);
+    }
+
+    private void setUpQuote() {
+        String[] quotes = getResources().getStringArray(R.array.quotes);
+        String[] authors = getResources().getStringArray(R.array.authors);
+
+        Random r = new Random();
+        int position = r.nextInt(quotes.length);
+
+        quoteView = (QuoteView) findViewById(R.id.empty);
+        quoteView.quote.setText(quotes[position]);
+        quoteView.author.setText("- " + authors[position]);
     }
 
     @Override
@@ -190,6 +212,12 @@ public class MainActivity extends ActionBarActivity
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
                 .show(dateHeaderFragment).detach(dayHeaderFragment).commit();
+    }
+
+    public void addItem(View view){
+        Intent intent = new Intent(this, AddActivity.class);
+        startActivity(intent);
+
     }
 
 }
