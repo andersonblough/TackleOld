@@ -1,5 +1,6 @@
 package com.tackle.app;
 
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -9,8 +10,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
+
+import java.util.Calendar;
 
 /**
  * Created by Bill on 11/18/13.
@@ -24,6 +28,7 @@ public class AddActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+        setUpMonthImage();
 
         initValues();
         setUpActionBar();
@@ -34,6 +39,14 @@ public class AddActivity extends ActionBarActivity {
         //InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         //imm.showSoftInput(tackleText, InputMethodManager.SHOW_IMPLICIT);
 
+    }
+
+    private void setUpMonthImage() {
+        TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
+        int month = Calendar.getInstance().get(Calendar.MONTH);
+
+        ImageView monthImage = (ImageView) findViewById(R.id.month_image);
+        monthImage.setImageDrawable(monthImages.getDrawable(month));
     }
 
     private void initValues() {

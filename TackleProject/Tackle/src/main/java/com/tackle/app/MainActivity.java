@@ -1,7 +1,11 @@
 package com.tackle.app;
 
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.TypedArray;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -10,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tackle.app.fragments.DateHeaderFragment;
@@ -24,12 +30,16 @@ import java.util.Random;
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    private static final int VIEW_STATE_WEEK = 0;
+    private static final int VIEW_STATE_DAY = 1;
+
     private QuoteView quoteView;
 
     public static final String WEEK_VIEW = "week view";
 
     private DateHeaderFragment dateHeaderFragment;
     private DayHeaderFragment dayHeaderFragment;
+    private int stateView;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -64,6 +74,9 @@ public class MainActivity extends ActionBarActivity
         setUpActionBar();
         setContentView(R.layout.activity_main);
         setUpDateHeader();
+        setUpMonthImage();
+
+        stateView = VIEW_STATE_WEEK;
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -78,6 +91,21 @@ public class MainActivity extends ActionBarActivity
 
         ListView listView = (ListView) findViewById(R.id.tackle_list);
         listView.setEmptyView(quoteView);
+
+
+    }
+
+    private void setUpMonthImage() {
+        ImageView imageView = (ImageView) findViewById(R.id.month_image);
+        TextView monthText = (TextView) findViewById(R.id.tv_month);
+
+        TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
+        int month  = Calendar.getInstance().get(Calendar.MONTH);
+        String monthTitle = Calendar.getInstance().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
+        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+
+        imageView.setImageDrawable(monthImages.getDrawable(month));
+        monthText.setText(monthTitle + " " + year);
     }
 
     private void setUpQuote() {
