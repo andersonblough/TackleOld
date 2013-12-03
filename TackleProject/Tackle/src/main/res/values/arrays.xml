@@ -22,7 +22,7 @@
         <item>Event</item>
     </array>
 
-    <array name="quotes" >
+    <array name="quotes">
         <item>You are never too old to set another goal or to dream a new dream.</item>
         <item>With the new day comes new strength and new thoughts.</item>
         <item>If you can dream it, you can do it.</item>
@@ -35,6 +35,10 @@
         <item>The hardships that I encountered in the past will help me succeed in the future.</item>
         <item>The more we do, the more we can do.</item>
         <item>When life happens, tackle it.</item>
+        <item>You miss 100% of the shots you don\'t take.</item>
+        <item>Challenge yourself with something you know you could never do, and what you\'ll find is that you can overcome anything.</item>
+        <item>In between goals is a thing called life, that has to be lived and enjoyed.</item>
+        <item>If you want to make your dreams come true, the first thing you have to do is wake up.</item>
     </array>
 
     <array name="authors">
@@ -50,5 +54,10 @@
         <item>Philip Emeagwali</item>
         <item>William Hazlitt</item>
         <item>Bill Anderson-Blough</item>
+        <item>Wayne Gretzky</item>
+        <item>Anonymous</item>
+        <item>Sid Caeser</item>
+        <item>J.M. Power</item>
+
     </array>
 </resources>
