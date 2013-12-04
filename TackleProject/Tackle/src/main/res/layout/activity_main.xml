@@ -14,12 +14,15 @@
         android:layout_width="match_parent"
         android:background="#E2E2E2">
 
-        <ImageView
+        <com.tackle.app.views.SelectableImageView
             android:id="@+id/month_image"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:adjustViewBounds="true"
-            android:src="@drawable/november"/>
+            android:src="@drawable/november"
+            android:clickable="true"
+            android:onClick="goToCalendar"
+            />
 
         <TextView
             android:id="@+id/tv_month"
@@ -28,6 +31,7 @@
             android:layout_centerHorizontal="true"
             android:layout_above="@+id/fragment_date_bar"
             android:text="November 2013"
+            android:layout_marginBottom="6dp"
             android:textColor="#FFF"
             android:textSize="22dp"
             android:shadowColor="#000"

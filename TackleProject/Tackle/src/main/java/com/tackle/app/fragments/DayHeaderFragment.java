@@ -9,29 +9,44 @@ import android.widget.TextView;
 
 import com.tackle.app.R;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 /**
  * Created by Bill on 11/6/13.
  */
 public class DayHeaderFragment extends Fragment {
 
-    private String day;
+    private long date;
+    private TextView tv;
 
     public DayHeaderFragment(){
         super();
     }
 
-    public DayHeaderFragment(String day){
+    public DayHeaderFragment(long date){
         super();
-        this.day = day;
+        this.date = date;
+    }
+
+    public void setDate(long dateTime){
+        this.date = dateTime;
+        initTextView();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_day_layout, container, false);
 
-        TextView tv = (TextView) view.findViewById(R.id.day_title);
-        tv.setText(day);
+        tv = (TextView) view.findViewById(R.id.day_title);
+        initTextView();
 
         return view;
+    }
+
+    private void initTextView(){
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(date);
+        tv.setText(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US));
     }
 }

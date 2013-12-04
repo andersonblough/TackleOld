@@ -89,6 +89,7 @@ public class CalendarFragment extends Fragment {
                 resultIntent.putExtra("result", time);
                 getActivity().setResult(Activity.RESULT_OK, resultIntent);
                 getActivity().finish();
+                getActivity().overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
             }
         });
 

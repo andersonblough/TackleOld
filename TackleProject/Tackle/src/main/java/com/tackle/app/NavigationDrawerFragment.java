@@ -273,6 +273,7 @@ public class NavigationDrawerFragment extends Fragment {
         Intent intent = new Intent(getActivity(), AddActivity.class);
         intent.putExtra("type", type);
         startActivity(intent);
+        getActivity().overridePendingTransition(0,0);
     }
 
     /**

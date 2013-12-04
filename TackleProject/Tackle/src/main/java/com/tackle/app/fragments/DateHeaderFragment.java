@@ -39,6 +39,12 @@ public class DateHeaderFragment extends Fragment {
     private TextView[] datesTV;
     private ImageView[] weatherIcons;
     private Integer lastDay;
+    private long date;
+
+    public DateHeaderFragment(long dateTime){
+        super();
+        date = dateTime;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -183,6 +189,7 @@ public class DateHeaderFragment extends Fragment {
         daysOfWeek = new long[5];
         for (int i = 0; i < 5; i++){
             Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(date);
             cal.add(Calendar.DAY_OF_MONTH, i);
             daysOfWeek[i] = cal.getTimeInMillis();
         }

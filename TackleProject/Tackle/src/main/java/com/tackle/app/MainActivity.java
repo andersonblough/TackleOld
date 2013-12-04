@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
 import com.tackle.app.views.QuoteView;
+import com.tackle.app.views.SelectableImageView;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -36,10 +37,13 @@ public class MainActivity extends ActionBarActivity
     private QuoteView quoteView;
 
     public static final String WEEK_VIEW = "week view";
+    public static final String DAY_VIEW = "day view";
 
     private DateHeaderFragment dateHeaderFragment;
     private DayHeaderFragment dayHeaderFragment;
-    private int stateView;
+    private int mViewState;
+    private long mSelectedDay;
+    private int mSelectedCategory;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -55,17 +59,18 @@ public class MainActivity extends ActionBarActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1){
             if (resultCode == RESULT_OK){
-                long time = data.getLongExtra("result", 1);
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(time);
-                String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
-                int year = cal.get(Calendar.YEAR);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
 
-                String date = month + " " + String.valueOf(day) + " " + String.valueOf(year);
-                Toast.makeText(this, date, Toast.LENGTH_SHORT).show();
+                mSelectedDay = data.getLongExtra("result", 1);
+                Toast.makeText(this, "RESULT", Toast.LENGTH_SHORT).show();
+                dayHeaderFragment.setDate(mSelectedDay);
+                FragmentManager manager = getFragmentManager();
+                manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                        .show(dayHeaderFragment).hide(dateHeaderFragment).commit();
+                setViewState(VIEW_STATE_DAY);
             }
         }
+
+
     }
 
     @Override
@@ -73,10 +78,15 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setUpActionBar();
         setContentView(R.layout.activity_main);
+
+        // initialize date class variable
+        initDate();
+
         setUpDateHeader();
         setUpMonthImage();
 
-        stateView = VIEW_STATE_WEEK;
+        mViewState = VIEW_STATE_DAY;
+        showDateHeader();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -95,8 +105,12 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+    private void initDate() {
+        mSelectedDay = System.currentTimeMillis();
+    }
+
     private void setUpMonthImage() {
-        ImageView imageView = (ImageView) findViewById(R.id.month_image);
+        SelectableImageView imageView = (SelectableImageView) findViewById(R.id.month_image);
         TextView monthText = (TextView) findViewById(R.id.tv_month);
 
         TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
@@ -124,16 +138,38 @@ public class MainActivity extends ActionBarActivity
     protected void onResume() {
         super.onResume();
 
-        FragmentManager manager = getFragmentManager();
-        manager.beginTransaction().replace(R.id.fragment_date_bar, dateHeaderFragment, WEEK_VIEW).commit();
+        showDateHeader();
 
+
+    }
+
+    private void showDateHeader() {
+        FragmentManager manager = getFragmentManager();
+        if (mViewState == VIEW_STATE_DAY){
+            manager.beginTransaction().show(dayHeaderFragment)
+                    .hide(dateHeaderFragment).commit();
+
+        }
+        if (mViewState == VIEW_STATE_WEEK){
+            manager.beginTransaction().show(dateHeaderFragment)
+                    .hide(dayHeaderFragment).commit();
+
+        }
     }
 
     private void setUpDateHeader() {
 
         if (dateHeaderFragment == null){
-            dateHeaderFragment = new DateHeaderFragment();
+            dateHeaderFragment = new DateHeaderFragment(mSelectedDay);
         }
+        if (dayHeaderFragment == null){
+            dayHeaderFragment = new DayHeaderFragment(mSelectedDay);
+        }
+        FragmentManager manager = getFragmentManager();
+        manager.beginTransaction()
+                .add(R.id.fragment_date_bar, dateHeaderFragment, WEEK_VIEW).hide(dateHeaderFragment)
+                .add(R.id.fragment_date_bar, dayHeaderFragment, DAY_VIEW).hide(dayHeaderFragment)
+                .commit();
     }
 
     private void setUpActionBar() {
@@ -199,6 +235,7 @@ public class MainActivity extends ActionBarActivity
             case R.id.month:
                 Intent intent = new Intent(this, MonthActivity.class);
                 startActivityForResult(intent, 1);
+                overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -224,28 +261,39 @@ public class MainActivity extends ActionBarActivity
         }
 
         long time = dateHeaderFragment.daysOfWeek[day];
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        String date = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
 
-        dayHeaderFragment = new DayHeaderFragment(date);
+        dayHeaderFragment.setDate(time);
 
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-                .add(R.id.fragment_date_bar, dayHeaderFragment).hide(dateHeaderFragment).commit();
+                .show(dayHeaderFragment).hide(dateHeaderFragment).commit();
+        setViewState(VIEW_STATE_DAY);
 
     }
+
+
 
     public void switchToWeek(View view){
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-                .show(dateHeaderFragment).detach(dayHeaderFragment).commit();
+                .show(dateHeaderFragment).hide(dayHeaderFragment).commit();
+        setViewState(VIEW_STATE_WEEK);
     }
 
     public void addItem(View view){
         Intent intent = new Intent(this, AddActivity.class);
         startActivity(intent);
 
+    }
+
+    public void goToCalendar(View view){
+        Intent intent = new Intent(this, MonthActivity.class);
+        startActivityForResult(intent, 1);
+        overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
+    }
+
+    private void setViewState(int viewState) {
+        mViewState = viewState;
     }
 
 }

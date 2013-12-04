@@ -21,7 +21,7 @@
         android:orientation="horizontal"
         android:background="#CFFF">
 
-        <EditText
+        <com.tackle.app.views.TackleEditText
             android:id="@+id/tackle_edit_text"
             android:layout_width="0dp"
             android:layout_weight="1"

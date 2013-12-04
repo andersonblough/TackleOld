@@ -5,14 +5,19 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tackle.app.views.TackleEditText;
 
 import java.util.Calendar;
 
@@ -21,7 +26,7 @@ import java.util.Calendar;
  */
 public class AddActivity extends ActionBarActivity {
     private String type;
-    private EditText tackleText;
+    private TackleEditText tackleText;
     private ActionBar actionBar;
     SpinnerAdapter mSpinnerAdapter;
     @Override
@@ -33,12 +38,13 @@ public class AddActivity extends ActionBarActivity {
         initValues();
         setUpActionBar();
 
-        tackleText = (EditText) findViewById(R.id.tackle_edit_text);
-        //tackleText.hasFocus();
-        //setTackleText(type);
-        //InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        //imm.showSoftInput(tackleText, InputMethodManager.SHOW_IMPLICIT);
+        tackleText = (TackleEditText) findViewById(R.id.tackle_edit_text);
+    }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        overridePendingTransition(0,0);
     }
 
     private void setUpMonthImage() {
@@ -65,6 +71,7 @@ public class AddActivity extends ActionBarActivity {
         switch (item.getItemId()){
             case android.R.id.home:
                 finish();
+                overridePendingTransition(0,0);
                 break;
         }
         return super.onOptionsItemSelected(item);

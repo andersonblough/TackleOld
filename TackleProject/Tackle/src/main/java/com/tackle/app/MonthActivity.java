@@ -90,7 +90,8 @@ public class MonthActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        finish();
+        overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
     }
 
     @Override
@@ -129,6 +130,7 @@ public class MonthActivity extends ActionBarActivity {
                 break;
             case android.R.id.home:
                 finish();
+                overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_right);
                 break;
         }
         return super.onOptionsItemSelected(item);
