@@ -40,6 +40,7 @@ public class DateHeaderFragment extends Fragment {
     private ImageView[] weatherIcons;
     private Integer lastDay;
     private long date;
+    private View view;
 
     public DateHeaderFragment(long dateTime){
         super();
@@ -65,7 +66,7 @@ public class DateHeaderFragment extends Fragment {
 
         Toast.makeText(getActivity(), "resumed", Toast.LENGTH_SHORT).show();
 
-        View view = inflater.inflate(R.layout.framgent_dateheader, container, false);
+        view = inflater.inflate(R.layout.framgent_dateheader, container, false);
         initViews(view);
 
         if (savedInstanceState != null){
@@ -193,6 +194,12 @@ public class DateHeaderFragment extends Fragment {
             cal.add(Calendar.DAY_OF_MONTH, i);
             daysOfWeek[i] = cal.getTimeInMillis();
         }
+    }
+
+    public void setDate(long date){
+        this.date = date;
+        initDays();
+        setDaysOfWeek();
     }
 
     private Handler handler = new Handler();

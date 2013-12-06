@@ -19,8 +19,9 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_month" />
 
-    item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
+    <item
+        android:id="@+id/today"
+        android:title="Today"
+        android:orderInCategory="0"
+        app:showAsAction="always" />
 </menu>

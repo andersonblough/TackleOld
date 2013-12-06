@@ -40,7 +40,8 @@
                 android:textSize="10dp"
                 android:includeFontPadding="false"
                 android:textColor="#000"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
                 android:textAllCaps="true"/>
 
             <TextView
@@ -52,7 +53,7 @@
                 android:text="00"
                 android:includeFontPadding="false"
                 android:fontFamily="sans-serif-light"
-                android:textSize="20dp"/>
+                android:textSize="19dp"/>
 
         </LinearLayout>
 
@@ -61,8 +62,8 @@
     <View
         android:layout_width="1dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:background="#A0A0A0" />
 
     <LinearLayout
@@ -98,7 +99,8 @@
                 android:textColor="#000"
                 android:textSize="10dp"
                 android:includeFontPadding="false"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
                 android:textAllCaps="true"/>
 
             <TextView
@@ -110,7 +112,7 @@
                 android:textColor="#000"
                 android:includeFontPadding="false"
                 android:fontFamily="sans-serif-light"
-                android:textSize="20dp"/>
+                android:textSize="19dp"/>
 
         </LinearLayout>
 
@@ -119,8 +121,8 @@
     <View
         android:layout_width="1dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:background="#A0A0A0" />
 
     <LinearLayout
@@ -155,7 +157,8 @@
                 android:text="dow"
                 android:textColor="#000"
                 android:includeFontPadding="false"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
                 android:textSize="10dp"
                 android:textAllCaps="true"/>
 
@@ -168,7 +171,7 @@
                 android:textColor="#000"
                 android:includeFontPadding="false"
                 android:fontFamily="sans-serif-light"
-                android:textSize="20dp"/>
+                android:textSize="19dp"/>
 
         </LinearLayout>
 
@@ -177,8 +180,8 @@
     <View
         android:layout_width="1dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:background="#A0A0A0" />
 
     <LinearLayout
@@ -213,7 +216,8 @@
                 android:text="dow"
                 android:textColor="#000"
                 android:includeFontPadding="false"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
                 android:textSize="10dp"
                 android:textAllCaps="true"/>
 
@@ -226,7 +230,7 @@
                 android:textColor="#000"
                 android:includeFontPadding="false"
                 android:fontFamily="sans-serif-light"
-                android:textSize="20dp"/>
+                android:textSize="19dp"/>
 
         </LinearLayout>
 
@@ -235,8 +239,8 @@
     <View
         android:layout_width="1dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:background="#A0A0A0" />
 
     <LinearLayout
@@ -271,7 +275,8 @@
                 android:text="dow"
                 android:textColor="#000"
                 android:includeFontPadding="false"
-                android:fontFamily="sans-serif-light"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
                 android:textSize="10dp"
                 android:textAllCaps="true"/>
 
@@ -284,7 +289,7 @@
                 android:textColor="#000"
                 android:includeFontPadding="false"
                 android:fontFamily="sans-serif-light"
-                android:textSize="20dp"/>
+                android:textSize="19dp"/>
 
         </LinearLayout>
 

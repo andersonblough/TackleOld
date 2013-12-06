@@ -14,14 +14,12 @@
         android:layout_width="match_parent"
         android:background="#E2E2E2">
 
-        <com.tackle.app.views.SelectableImageView
+        <ImageView
             android:id="@+id/month_image"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:adjustViewBounds="true"
             android:src="@drawable/november"
-            android:clickable="true"
-            android:onClick="goToCalendar"
             />
 
         <TextView

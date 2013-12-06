@@ -47,6 +47,8 @@ public class DayHeaderFragment extends Fragment {
     private void initTextView(){
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(date);
-        tv.setText(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US));
+        String dayOfWeek = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
+        int date = cal.get(Calendar.DAY_OF_MONTH);
+        tv.setText(dayOfWeek + ", " + date);
     }
 }

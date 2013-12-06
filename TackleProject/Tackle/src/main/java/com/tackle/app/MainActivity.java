@@ -6,6 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -19,10 +23,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tackle.app.Weather.JSONWeatherParser;
+import com.tackle.app.Weather.Weather;
+import com.tackle.app.Weather.WeatherHTTPClient;
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
+import com.tackle.app.fragments.DayViewFragment;
+import com.tackle.app.fragments.WeekViewFragment;
 import com.tackle.app.views.QuoteView;
 import com.tackle.app.views.SelectableImageView;
+
+import org.json.JSONException;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -30,6 +41,10 @@ import java.util.Random;
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private static final int MILLI_PER_SECOND = 1000;
+    private static final int SEC_PER_HOUR = 3600;
+    private static final int THREE_HOURS = (3 * SEC_PER_HOUR * MILLI_PER_SECOND);
 
     private static final int VIEW_STATE_WEEK = 0;
     private static final int VIEW_STATE_DAY = 1;
@@ -39,11 +54,22 @@ public class MainActivity extends ActionBarActivity
     public static final String WEEK_VIEW = "week view";
     public static final String DAY_VIEW = "day view";
 
+    /**
+     * Fragment for displaying the week view
+     */
+    private WeekViewFragment mWeekViewFragment;
+
+    /**
+     * Fragment for displaying the day view
+     */
+    private DayViewFragment mDayViewFragment;
+
     private DateHeaderFragment dateHeaderFragment;
     private DayHeaderFragment dayHeaderFragment;
     private int mViewState;
     private long mSelectedDay;
-    private int mSelectedCategory;
+    private int mCategory;
+
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -59,13 +85,10 @@ public class MainActivity extends ActionBarActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1){
             if (resultCode == RESULT_OK){
-
-                mSelectedDay = data.getLongExtra("result", 1);
-                Toast.makeText(this, "RESULT", Toast.LENGTH_SHORT).show();
-                dayHeaderFragment.setDate(mSelectedDay);
+                setDate(data.getLongExtra("result", 1));
                 FragmentManager manager = getFragmentManager();
-                manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-                        .show(dayHeaderFragment).hide(dateHeaderFragment).commit();
+                manager.beginTransaction().setCustomAnimations(R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                        .show(mDayViewFragment).hide(mWeekViewFragment).commit();
                 setViewState(VIEW_STATE_DAY);
             }
         }
@@ -79,14 +102,19 @@ public class MainActivity extends ActionBarActivity
         setUpActionBar();
         setContentView(R.layout.activity_main);
 
-        // initialize date class variable
-        initDate();
+        mDayViewFragment = new DayViewFragment();
+        mWeekViewFragment = new WeekViewFragment();
 
+        // set the date as the current date
+        //setDate(System.currentTimeMillis());
+        // add the fragments to the current view
+        mSelectedDay = System.currentTimeMillis();
+        setUpMonthImage(mSelectedDay);
         setUpDateHeader();
-        setUpMonthImage();
 
-        mViewState = VIEW_STATE_DAY;
-        showDateHeader();
+        runnable.run();
+
+        mViewState = VIEW_STATE_WEEK;
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -109,19 +137,6 @@ public class MainActivity extends ActionBarActivity
         mSelectedDay = System.currentTimeMillis();
     }
 
-    private void setUpMonthImage() {
-        SelectableImageView imageView = (SelectableImageView) findViewById(R.id.month_image);
-        TextView monthText = (TextView) findViewById(R.id.tv_month);
-
-        TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
-        int month  = Calendar.getInstance().get(Calendar.MONTH);
-        String monthTitle = Calendar.getInstance().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
-        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-
-        imageView.setImageDrawable(monthImages.getDrawable(month));
-        monthText.setText(monthTitle + " " + year);
-    }
-
     private void setUpQuote() {
         String[] quotes = getResources().getStringArray(R.array.quotes);
         String[] authors = getResources().getStringArray(R.array.authors);
@@ -138,6 +153,8 @@ public class MainActivity extends ActionBarActivity
     protected void onResume() {
         super.onResume();
 
+        //TODO: check if the date is current and if it has changed
+
         showDateHeader();
 
 
@@ -146,29 +163,22 @@ public class MainActivity extends ActionBarActivity
     private void showDateHeader() {
         FragmentManager manager = getFragmentManager();
         if (mViewState == VIEW_STATE_DAY){
-            manager.beginTransaction().show(dayHeaderFragment)
-                    .hide(dateHeaderFragment).commit();
+            manager.beginTransaction().show(mDayViewFragment)
+                    .hide(mWeekViewFragment).commit();
 
         }
         if (mViewState == VIEW_STATE_WEEK){
-            manager.beginTransaction().show(dateHeaderFragment)
-                    .hide(dayHeaderFragment).commit();
+            manager.beginTransaction().show(mWeekViewFragment)
+                    .hide(mDayViewFragment).commit();
 
         }
     }
 
     private void setUpDateHeader() {
-
-        if (dateHeaderFragment == null){
-            dateHeaderFragment = new DateHeaderFragment(mSelectedDay);
-        }
-        if (dayHeaderFragment == null){
-            dayHeaderFragment = new DayHeaderFragment(mSelectedDay);
-        }
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction()
-                .add(R.id.fragment_date_bar, dateHeaderFragment, WEEK_VIEW).hide(dateHeaderFragment)
-                .add(R.id.fragment_date_bar, dayHeaderFragment, DAY_VIEW).hide(dayHeaderFragment)
+                .add(R.id.fragment_date_bar, mWeekViewFragment, WEEK_VIEW).hide(mWeekViewFragment)
+                .add(R.id.fragment_date_bar, mDayViewFragment, DAY_VIEW).hide(mDayViewFragment)
                 .commit();
     }
 
@@ -225,6 +235,14 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (currentDay()){
+            menu.removeItem(R.id.today);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -232,8 +250,12 @@ public class MainActivity extends ActionBarActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
+            case R.id.today:
+                setDate(System.currentTimeMillis());
+                return true;
             case R.id.month:
                 Intent intent = new Intent(this, MonthActivity.class);
+                intent.putExtra("date", mSelectedDay);
                 startActivityForResult(intent, 1);
                 overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
         }
@@ -260,23 +282,24 @@ public class MainActivity extends ActionBarActivity
                 break;
         }
 
-        long time = dateHeaderFragment.daysOfWeek[day];
+        long time = mWeekViewFragment.getWeekDay(day);
 
-        dayHeaderFragment.setDate(time);
+        mDayViewFragment.setDate(time);
 
         FragmentManager manager = getFragmentManager();
-        manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-                .show(dayHeaderFragment).hide(dateHeaderFragment).commit();
+        manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out)
+                .show(mDayViewFragment).hide(mWeekViewFragment).commit();
+        setUpMonthImage(time);
         setViewState(VIEW_STATE_DAY);
 
     }
 
 
-
     public void switchToWeek(View view){
         FragmentManager manager = getFragmentManager();
-        manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out, R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-                .show(dateHeaderFragment).hide(dayHeaderFragment).commit();
+        manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out)
+                .show(mWeekViewFragment).hide(mDayViewFragment).commit();
+        setUpMonthImage(mSelectedDay);
         setViewState(VIEW_STATE_WEEK);
     }
 
@@ -288,12 +311,160 @@ public class MainActivity extends ActionBarActivity
 
     public void goToCalendar(View view){
         Intent intent = new Intent(this, MonthActivity.class);
+        intent.putExtra("date", mSelectedDay);
         startActivityForResult(intent, 1);
         overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
     }
 
     private void setViewState(int viewState) {
         mViewState = viewState;
+    }
+
+    /**
+     * private Method to set date and update all content related to date
+     */
+    private void setDate(long dateTime){
+        mSelectedDay = dateTime;
+
+        // check if fragments exists
+        if (mWeekViewFragment == null) mWeekViewFragment = new WeekViewFragment();
+        if (mDayViewFragment == null) mDayViewFragment = new DayViewFragment();
+
+        //initialize set date for fragments
+        mWeekViewFragment.setDateTime(mSelectedDay);
+        mDayViewFragment.setDate(mSelectedDay);
+
+        //update the month image and text
+        setUpMonthImage(mSelectedDay);
+
+        //update menu to display 'TODAY' option if appropriate
+        invalidateOptionsMenu();
+
+        // TODO: initialize the loader to update the list view based on the date
+
+
+    }
+
+    /**
+     * private Method to set up the Month image and Text
+     */
+    private void setUpMonthImage(long date) {
+        ImageView imageView = (ImageView) findViewById(R.id.month_image);
+        TextView monthText = (TextView) findViewById(R.id.tv_month);
+
+        TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
+        Calendar cal  = Calendar.getInstance();
+        cal.setTimeInMillis(date);
+        int month  = cal.get(Calendar.MONTH);
+        String monthTitle = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
+        String year = String.valueOf(cal.get(Calendar.YEAR));
+
+        imageView.setImageDrawable(monthImages.getDrawable(month));
+        monthText.setText(monthTitle + " " + year);
+    }
+
+    /**
+     *private Method to check the current day
+     */
+    private boolean currentDay() {
+        Calendar today = Calendar.getInstance();
+        Calendar selected = Calendar.getInstance();
+        selected.setTimeInMillis(mSelectedDay);
+        return (today.get(Calendar.YEAR) == selected.get(Calendar.YEAR) && today.get(Calendar.DAY_OF_YEAR) == selected.get(Calendar.DAY_OF_YEAR));
+    }
+
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            double latitude = 0;
+            double longitude = 0;
+
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            if (location != null){
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+            }
+
+            String locale = "lat=" + String.valueOf(latitude) + "&lon=" + String.valueOf(longitude);
+
+            Toast.makeText(getBaseContext(), "Run Started", Toast.LENGTH_SHORT).show();
+
+            JSONWeatherTask weatherTask = new JSONWeatherTask();
+
+            weatherTask.execute(new String[]{locale});
+            handler.postDelayed(runnable, THREE_HOURS);
+
+        }
+    };
+
+    private class JSONWeatherTask extends AsyncTask<String, Void, Weather[]> {
+
+        @Override
+        protected Weather[] doInBackground(String... params) {
+            Weather[] forecast = new Weather[5];
+            String data = new WeatherHTTPClient().getWeatherData(params[0]);
+            JSONWeatherParser parser = new JSONWeatherParser();
+
+            if (data != null){
+                //System.out.println(data);
+
+                for (int i = 0; i < 5; i++){
+                    try {
+                        Weather weather = parser.getWeather(data, i);
+                        forecast[i] = weather;
+
+                    }
+                    catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+            return forecast;
+        }
+
+        @Override
+        protected void onPostExecute(Weather[] forecast) {
+            super.onPostExecute(forecast);
+            initWeatherIds(forecast);
+        }
+
+    }
+
+    private void initWeatherIds(Weather[] forecast){
+        int[] weatherIds = new int[5];
+        if (forecast != null){
+            for (int i = 0; i < forecast.length; i++){
+                Weather weather = forecast[i];
+                if (weather != null){
+                    int weatherID = weather.getWeatherId();
+                    if (weatherID >=200 && weatherID <= 232){
+                        weatherIds[i] = R.drawable.weather_thunderstorm;
+                    }
+                    else if (weatherID >= 300 && weatherID <= 522){
+                        weatherIds[i] = R.drawable.weather_rain;
+                    }
+                    else if (weatherID >= 600 && weatherID <= 621){
+                        weatherIds[i] = R.drawable.weather_snow;
+                    }
+                    else if (weatherID == 800){
+                        weatherIds[i] = R.drawable.weather_clear;
+                    }
+                    else if (weatherID >= 801 && weatherID <= 803){
+                        weatherIds[i] = R.drawable.weather_partlycloudy;
+                    }
+                    else if (weatherID == 804){
+                        weatherIds[i] = R.drawable.weather_cloudy;
+                    }
+                }
+            }
+        }
+        mWeekViewFragment.setWeather(weatherIds);
+        mDayViewFragment.setWeather(weatherIds);
     }
 
 }

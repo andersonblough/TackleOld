@@ -18,6 +18,7 @@ import java.util.Calendar;
  */
 public class MonthActivity extends ActionBarActivity {
     private static final int PAGE_MIDDLE = 1;
+    private long date;
     private int mSelectedPageIndex = 1;
     CalendarFragment[] fragList;
     ViewPager viewPager;
@@ -30,14 +31,19 @@ public class MonthActivity extends ActionBarActivity {
 
         setUpActionBar();
 
+        if (getIntent() != null){
+            date = getIntent().getLongExtra("date", 0);
+        }
+
         fragList = new CalendarFragment[3];
         Calendar curMonth = Calendar.getInstance();
+        curMonth.setTimeInMillis(date);
         Calendar prevMonth, nextMonth;
         prevMonth = (Calendar) curMonth.clone();
         nextMonth = (Calendar) curMonth.clone();
 
-        currentMonth = curMonth.get(Calendar.MONTH);
-        currentYear = curMonth.get(Calendar.YEAR);
+        currentMonth = Calendar.getInstance().get(Calendar.MONTH);
+        currentYear = Calendar.getInstance().get(Calendar.YEAR);
 
         prevMonth.set(Calendar.MONTH, prevMonth.get(Calendar.MONTH) - 1);
         nextMonth.set(Calendar.MONTH, nextMonth.get(Calendar.MONTH) + 1);
