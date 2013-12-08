@@ -1,11 +1,13 @@
 package com.tackle.app;
 
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.tackle.app.R;
 import com.tackle.app.adapters.InfinitePageAdapter;
@@ -16,7 +18,7 @@ import java.util.Calendar;
 /**
  * Created by Bill on 11/11/13.
  */
-public class MonthActivity extends ActionBarActivity {
+public class MonthActivity extends ActionBarActivity implements PickerDialog.PickerDateChangeListener {
     private static final int PAGE_MIDDLE = 1;
     private long date;
     private int mSelectedPageIndex = 1;
@@ -148,5 +150,29 @@ public class MonthActivity extends ActionBarActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         //actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_bg));
 
+    }
+
+    public void pickDate(View view){
+        Calendar cal = fragList[1].getCalendar();
+        DialogFragment dialog = new PickerDialog(cal.getTimeInMillis());
+        dialog.show(getSupportFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void onPickerDateChanged(long dateTime) {
+        Calendar curMonth = Calendar.getInstance();
+        curMonth.setTimeInMillis(dateTime);
+        Calendar prevMonth, nextMonth;
+        prevMonth = (Calendar) curMonth.clone();
+        nextMonth = (Calendar) curMonth.clone();
+
+        prevMonth.set(Calendar.MONTH, prevMonth.get(Calendar.MONTH) - 1);
+        nextMonth.set(Calendar.MONTH, nextMonth.get(Calendar.MONTH) + 1);
+
+        fragList[0].setMonth(prevMonth);
+        fragList[1].setMonth(curMonth);
+        fragList[2].setMonth(nextMonth);
+
+        invalidateOptionsMenu();
     }
 }

@@ -133,6 +133,12 @@ public class MainActivity extends ActionBarActivity
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(runnable);
+    }
+
     private void initDate() {
         mSelectedDay = System.currentTimeMillis();
     }

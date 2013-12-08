@@ -25,6 +25,15 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center"/>
 
+    <FrameLayout
+        android:id="@+id/pick_date"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_alignBottom="@+id/month_image"
+        android:background="@drawable/selector_day"
+        android:clickable="true"
+        android:onClick="pickDate"/>
+
     <LinearLayout
         android:id="@+id/days_of_week"
         android:layout_width="match_parent"
