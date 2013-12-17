@@ -75,7 +75,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?android:attr/actionBarSize"
         android:layout_gravity="start|bottom"
-        android:name="com.tackle.app.NavigationDrawerFragment"
+        android:name="com.tackle.app.fragments.NavigationDrawerFragment"
         tools:layout="@layout/fragment_navigation_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

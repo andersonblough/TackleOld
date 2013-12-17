@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:choiceMode="singleChoice"
-    android:divider="@android:color/transparent"
-    android:dividerHeight="0dp"
-    android:background="#fff"
-    tools:context="com.tackle.app.NavigationDrawerFragment" />
+    android:divider="#BBB"
+    android:dividerHeight="1dp"
+    android:background="#e2e2e2"
+    tools:context="com.tackle.app.fragments.NavigationDrawerFragment" />

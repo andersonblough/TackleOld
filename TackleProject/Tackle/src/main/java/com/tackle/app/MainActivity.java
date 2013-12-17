@@ -1,15 +1,17 @@
 package com.tackle.app;
 
 import android.app.FragmentManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -17,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -26,12 +27,13 @@ import android.widget.Toast;
 import com.tackle.app.Weather.JSONWeatherParser;
 import com.tackle.app.Weather.Weather;
 import com.tackle.app.Weather.WeatherHTTPClient;
+import com.tackle.app.data.TackleContract;
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
 import com.tackle.app.fragments.DayViewFragment;
+import com.tackle.app.fragments.NavigationDrawerFragment;
 import com.tackle.app.fragments.WeekViewFragment;
 import com.tackle.app.views.QuoteView;
-import com.tackle.app.views.SelectableImageView;
 
 import org.json.JSONException;
 
@@ -40,7 +42,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int MILLI_PER_SECOND = 1000;
     private static final int SEC_PER_HOUR = 3600;
@@ -48,6 +50,8 @@ public class MainActivity extends ActionBarActivity
 
     private static final int VIEW_STATE_WEEK = 0;
     private static final int VIEW_STATE_DAY = 1;
+
+    private static final int CATEGORY_LOADER = 100;
 
     private QuoteView quoteView;
 
@@ -102,6 +106,8 @@ public class MainActivity extends ActionBarActivity
         setUpActionBar();
         setContentView(R.layout.activity_main);
 
+        getSupportLoaderManager().initLoader(CATEGORY_LOADER, null, this);
+
         mDayViewFragment = new DayViewFragment();
         mWeekViewFragment = new WeekViewFragment();
 
@@ -129,7 +135,6 @@ public class MainActivity extends ActionBarActivity
 
         ListView listView = (ListView) findViewById(R.id.tackle_list);
         listView.setEmptyView(quoteView);
-
 
     }
 
@@ -202,13 +207,24 @@ public class MainActivity extends ActionBarActivity
         //fragmentManager.beginTransaction()
         //       .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
         //        .commit();
-        onSectionAttached(position + 1);
+        if (position == 0){
+            mTitle = "All";
+        }
+        else {
+            mCategory = position;
+            Cursor c = getContentResolver().query(TackleContract.Categories.CONTENT_URI, null, null, null, null);
+            c.moveToFirst();
+            mTitle = c.getString(c.getColumnIndex(TackleContract.Categories.NAME));
+            c.close();
+
+        }
+        //onSectionAttached(position + 1);
     }
 
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
+                mTitle = "All";
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
@@ -405,6 +421,40 @@ public class MainActivity extends ActionBarActivity
 
         }
     };
+
+    @Override
+    public android.support.v4.content.Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
+        CursorLoader cursorLoader = null;
+        switch (loaderID){
+            case CATEGORY_LOADER:
+                cursorLoader = new CursorLoader(this, TackleContract.Categories.CONTENT_URI, null, null, null, null);
+                break;
+        }
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(android.support.v4.content.Loader<Cursor> cursorLoader, Cursor cursor) {
+        Cursor c = getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, null, null, null, null);
+        switch (cursorLoader.getId()){
+            case CATEGORY_LOADER:
+                mNavigationDrawerFragment.mDrawerAdapter.swapCursor(cursor);
+                c.moveToFirst();
+                mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
+                c.close();
+                break;
+        }
+    }
+
+    @Override
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> cursorLoader) {
+        switch (cursorLoader.getId()){
+            case CATEGORY_LOADER:
+                mNavigationDrawerFragment.mDrawerAdapter.swapCursor(null);
+                break;
+        }
+
+    }
 
     private class JSONWeatherTask extends AsyncTask<String, Void, Weather[]> {
 

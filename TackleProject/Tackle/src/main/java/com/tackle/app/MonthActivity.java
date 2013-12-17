@@ -9,7 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.tackle.app.R;
+import com.tackle.app.Dialogs.PickerDialog;
 import com.tackle.app.adapters.InfinitePageAdapter;
 import com.tackle.app.fragments.CalendarFragment;
 

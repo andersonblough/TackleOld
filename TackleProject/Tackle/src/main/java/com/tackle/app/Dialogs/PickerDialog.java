@@ -1,4 +1,4 @@
-package com.tackle.app;
+package com.tackle.app.Dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;

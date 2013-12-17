@@ -2,4 +2,5 @@
 <resources>
     <color name="Tackle" >#c888</color>
     <color name="Tackle_Green">#0DAD4B</color>
+    <color name="Selection">#BBB</color>
 </resources>

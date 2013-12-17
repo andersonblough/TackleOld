@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="months">
-        <item>@drawable/december</item>
+        <item>@drawable/january</item>
         <item>@drawable/february</item>
         <item>@drawable/march</item>
         <item>@drawable/april</item>
@@ -12,7 +12,7 @@
         <item>@drawable/september</item>
         <item>@drawable/october</item>
         <item>@drawable/november</item>
-        <item>@drawable/december2</item>
+        <item>@drawable/december</item>
     </array>
 
     <array name="types">
