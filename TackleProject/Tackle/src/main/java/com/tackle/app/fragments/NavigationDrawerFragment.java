@@ -1,6 +1,7 @@
 package com.tackle.app.fragments;
 
 import android.content.Intent;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBarActivity;;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -26,15 +27,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tackle.app.AddActivity;
+import com.tackle.app.Dialogs.ColorPickerDialog;
+import com.tackle.app.Dialogs.DeleteDialog;
+import com.tackle.app.MainActivity;
 import com.tackle.app.R;
 import com.tackle.app.adapters.CategoryDrawerAdapter;
+import com.tackle.app.data.TackleContract;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment{
 
     /**
      * Remember the position of the selected item.
@@ -61,7 +66,7 @@ public class NavigationDrawerFragment extends Fragment {
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 0;
+    private int mCurrentSelectedPosition = 1;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -95,8 +100,8 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mDrawerListView = (ListView) inflater.inflate(
-                R.layout.fragment_navigation_drawer, container, false);
+        mFragmentContainerView = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+        mDrawerListView = (ListView) mFragmentContainerView.findViewById(R.id.drawer_list);
 
         View header = inflater.inflate(R.layout.category_drawer_item, null);
         TextView headerTitle = (TextView) header.findViewById(R.id.category);
@@ -105,16 +110,29 @@ public class NavigationDrawerFragment extends Fragment {
         count.setTextColor(getResources().getColor(android.R.color.black));
 
         mDrawerListView.addHeaderView(header);
+
         mDrawerListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         mDrawerAdapter = new CategoryDrawerAdapter(getActivity(), null, false);
         mDrawerListView.setAdapter(mDrawerAdapter);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                selectItem(position);
+                selectItem(position, id);
             }
         });
-        return mDrawerListView;
+
+        mDrawerListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0 || position == 1){
+                    return false;
+                }
+                DialogFragment deleteDialog = new DeleteDialog(id);
+                deleteDialog.show(getFragmentManager(), "Delete");
+                return true;
+            }
+        });
+        return mFragmentContainerView;
     }
 
     public boolean isDrawerOpen() {
@@ -127,11 +145,11 @@ public class NavigationDrawerFragment extends Fragment {
      * @param fragmentId   The android:id of this fragment in its activity's layout.
      * @param drawerLayout The DrawerLayout containing this fragment's UI.
      */
-    public void setUp(int fragmentId, DrawerLayout drawerLayout) {
+    public void setUp(int fragmentId, DrawerLayout drawerLayout, long id) {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
-        selectItem(mCurrentSelectedPosition);
+        selectItem(mCurrentSelectedPosition, id);
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -197,7 +215,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    private void selectItem(int position) {
+    public void selectItem(int position, long id) {
         mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
@@ -206,7 +224,7 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
+            mCallbacks.onNavigationDrawerItemSelected(id);
         }
     }
 
@@ -302,7 +320,6 @@ public class NavigationDrawerFragment extends Fragment {
     private ActionBar getActionBar() {
         return ((ActionBarActivity) getActivity()).getSupportActionBar();
     }
-
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
@@ -310,6 +327,6 @@ public class NavigationDrawerFragment extends Fragment {
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(long id);
     }
 }

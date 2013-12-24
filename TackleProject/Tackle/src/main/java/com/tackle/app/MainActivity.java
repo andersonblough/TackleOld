@@ -1,14 +1,19 @@
 package com.tackle.app;
 
 import android.app.FragmentManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.view.PagerTitleStrip;
@@ -24,9 +29,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tackle.app.Dialogs.ColorPickerDialog;
+import com.tackle.app.Dialogs.DeleteDialog;
 import com.tackle.app.Weather.JSONWeatherParser;
 import com.tackle.app.Weather.Weather;
 import com.tackle.app.Weather.WeatherHTTPClient;
+import com.tackle.app.adapters.TackleListAdapter;
 import com.tackle.app.data.TackleContract;
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
@@ -37,12 +45,13 @@ import com.tackle.app.views.QuoteView;
 
 import org.json.JSONException;
 
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderManager.LoaderCallbacks<Cursor> {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderManager.LoaderCallbacks<Cursor>, ColorPickerDialog.CategoryPickerListener, DeleteDialog.DeleteCategoryListener {
 
     private static final int MILLI_PER_SECOND = 1000;
     private static final int SEC_PER_HOUR = 3600;
@@ -52,6 +61,7 @@ public class MainActivity extends ActionBarActivity
     private static final int VIEW_STATE_DAY = 1;
 
     private static final int CATEGORY_LOADER = 100;
+    private static final int TACKLE_ITEMS_LOADER = 110;
 
     private QuoteView quoteView;
 
@@ -68,11 +78,14 @@ public class MainActivity extends ActionBarActivity
      */
     private DayViewFragment mDayViewFragment;
 
+    private TackleListAdapter mTackleListAdapter;
+
     private DateHeaderFragment dateHeaderFragment;
     private DayHeaderFragment dayHeaderFragment;
     private int mViewState;
     private long mSelectedDay;
-    private int mCategory;
+    private long mTempDate;
+    public long mCategory =-1;
 
 
     /**
@@ -90,6 +103,7 @@ public class MainActivity extends ActionBarActivity
         if (requestCode == 1){
             if (resultCode == RESULT_OK){
                 setDate(data.getLongExtra("result", 1));
+                mTempDate = mSelectedDay;
                 FragmentManager manager = getFragmentManager();
                 manager.beginTransaction().setCustomAnimations(R.animator.card_flip_left_in, R.animator.card_flip_left_out)
                         .show(mDayViewFragment).hide(mWeekViewFragment).commit();
@@ -106,21 +120,22 @@ public class MainActivity extends ActionBarActivity
         setUpActionBar();
         setContentView(R.layout.activity_main);
 
-        getSupportLoaderManager().initLoader(CATEGORY_LOADER, null, this);
 
-        mDayViewFragment = new DayViewFragment();
-        mWeekViewFragment = new WeekViewFragment();
 
         // set the date as the current date
         //setDate(System.currentTimeMillis());
         // add the fragments to the current view
         mSelectedDay = System.currentTimeMillis();
         setUpMonthImage(mSelectedDay);
-        setUpDateHeader();
+
+        setUpDateHeader(savedInstanceState);
 
         runnable.run();
 
         mViewState = VIEW_STATE_WEEK;
+
+        getSupportLoaderManager().initLoader(CATEGORY_LOADER, null, this);
+        getSupportLoaderManager().initLoader(TACKLE_ITEMS_LOADER, null, this);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -129,18 +144,35 @@ public class MainActivity extends ActionBarActivity
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+                (DrawerLayout) findViewById(R.id.drawer_layout), mCategory);
 
         setUpQuote();
 
         ListView listView = (ListView) findViewById(R.id.tackle_list);
-        listView.setEmptyView(quoteView);
+
+        mTackleListAdapter = new TackleListAdapter(this, null, false);
+        listView.setAdapter(mTackleListAdapter);
+
+        View emptyView = findViewById(R.id.empty);
+        listView.setEmptyView(emptyView);
+
+        View header = new View(this);
+        header.setMinimumHeight(16);
+        header.setClickable(false);
+
+        listView.addHeaderView(header);
+
+
+
+        tempData();
 
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
+
         handler.removeCallbacks(runnable);
     }
 
@@ -155,7 +187,7 @@ public class MainActivity extends ActionBarActivity
         Random r = new Random();
         int position = r.nextInt(quotes.length);
 
-        quoteView = (QuoteView) findViewById(R.id.empty);
+        quoteView = (QuoteView) findViewById(R.id.quotes);
         quoteView.quote.setText(quotes[position]);
         quoteView.author.setText("- " + authors[position]);
     }
@@ -167,6 +199,13 @@ public class MainActivity extends ActionBarActivity
         //TODO: check if the date is current and if it has changed
 
         showDateHeader();
+
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
 
     }
@@ -185,12 +224,19 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private void setUpDateHeader() {
+    private void setUpDateHeader(Bundle savedInstanceState) {
+        mDayViewFragment = new DayViewFragment();
+        mWeekViewFragment = new WeekViewFragment();
+
         FragmentManager manager = getFragmentManager();
-        manager.beginTransaction()
-                .add(R.id.fragment_date_bar, mWeekViewFragment, WEEK_VIEW).hide(mWeekViewFragment)
-                .add(R.id.fragment_date_bar, mDayViewFragment, DAY_VIEW).hide(mDayViewFragment)
-                .commit();
+        if (savedInstanceState == null){
+            manager.beginTransaction().add(R.id.container_week, mWeekViewFragment).hide(mWeekViewFragment).commit();
+            manager.beginTransaction().add(R.id.container_day, mDayViewFragment).hide(mDayViewFragment).commit();
+        }
+        else {
+            manager.beginTransaction().replace(R.id.container_week, mWeekViewFragment).hide(mWeekViewFragment).commit();
+            manager.beginTransaction().replace(R.id.container_day, mDayViewFragment).hide(mDayViewFragment).commit();
+        }
     }
 
     private void setUpActionBar() {
@@ -201,23 +247,25 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(long id) {
         // update the main content by replacing fragments
         //FragmentManager fragmentManager = getSupportFragmentManager();
         //fragmentManager.beginTransaction()
         //       .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
         //        .commit();
-        if (position == 0){
+        if (id == -1){
             mTitle = "All";
+            mCategory = id;
         }
         else {
-            mCategory = position;
-            Cursor c = getContentResolver().query(TackleContract.Categories.CONTENT_URI, null, null, null, null);
+            mCategory = id;
+            Uri uri = Uri.parse(TackleContract.Categories.CONTENT_URI + "/" + mCategory);
+            Cursor c = getContentResolver().query(uri, null, null, null, null);
             c.moveToFirst();
             mTitle = c.getString(c.getColumnIndex(TackleContract.Categories.NAME));
             c.close();
-
         }
+        getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
         //onSectionAttached(position + 1);
     }
 
@@ -274,6 +322,8 @@ public class MainActivity extends ActionBarActivity
                 return true;
             case R.id.today:
                 setDate(System.currentTimeMillis());
+                mTempDate = mSelectedDay;
+                getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
                 return true;
             case R.id.month:
                 Intent intent = new Intent(this, MonthActivity.class);
@@ -305,8 +355,11 @@ public class MainActivity extends ActionBarActivity
         }
 
         long time = mWeekViewFragment.getWeekDay(day);
+        mTempDate = mSelectedDay;
+        mSelectedDay = time;
 
-        mDayViewFragment.setDate(time);
+        mDayViewFragment.setDate(mSelectedDay);
+
 
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out)
@@ -318,9 +371,11 @@ public class MainActivity extends ActionBarActivity
 
 
     public void switchToWeek(View view){
+
+        mSelectedDay = mTempDate;
         FragmentManager manager = getFragmentManager();
         manager.beginTransaction().setCustomAnimations(R.animator.card_flip_right_in, R.animator.card_flip_right_out)
-                .show(mWeekViewFragment).hide(mDayViewFragment).commit();
+                .hide(mDayViewFragment).show(mWeekViewFragment).commit();
         setUpMonthImage(mSelectedDay);
         setViewState(VIEW_STATE_WEEK);
     }
@@ -339,7 +394,8 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void setViewState(int viewState) {
-        mViewState = viewState;
+      mViewState = viewState;
+      getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
     }
 
     /**
@@ -429,6 +485,61 @@ public class MainActivity extends ActionBarActivity
             case CATEGORY_LOADER:
                 cursorLoader = new CursorLoader(this, TackleContract.Categories.CONTENT_URI, null, null, null, null);
                 break;
+            case TACKLE_ITEMS_LOADER:
+                String[] projection = {TackleContract.TackleItems.ID, TackleContract.TackleItems.NAME, TackleContract.TackleItems.TYPE, TackleContract.TackleItems.START_DATE, TackleContract.TackleItems.STATUS, TackleContract.TackleItems.CATEGORY_ID};
+                switch (mViewState){
+                    case VIEW_STATE_DAY:
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTimeInMillis(mSelectedDay);
+                        cal.set(Calendar.HOUR_OF_DAY, 0);
+                        cal.set(Calendar.MINUTE, 0);
+                        cal.set(Calendar.SECOND, 0);
+                        cal.set(Calendar.MILLISECOND, 0);
+                        long startTime = cal.getTimeInMillis();
+                        long endTime = startTime + (24 * SEC_PER_HOUR * MILLI_PER_SECOND);
+                        String selection;
+                        String[] selectionArgs;
+
+                        if (mCategory == -1){
+                            selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ?";
+                            selectionArgs = new String[]{String.valueOf(startTime), String.valueOf(endTime)};
+                        }
+                        else {
+                            selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
+                            selectionArgs = new String[]{String.valueOf(startTime), String.valueOf(endTime), String.valueOf(mCategory)};
+                        }
+
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, null);
+                        break;
+                    case VIEW_STATE_WEEK:
+                        Calendar week = Calendar.getInstance();
+                        week.setTimeInMillis(mSelectedDay);
+                        week.set(Calendar.HOUR_OF_DAY, 0);
+                        week.set(Calendar.MINUTE, 0);
+                        week.set(Calendar.SECOND, 0);
+                        week.set(Calendar.MILLISECOND, 0);
+                        long weekStart = week.getTimeInMillis();
+                        long weekEnd = weekStart + (5 * 24 * SEC_PER_HOUR * MILLI_PER_SECOND);
+                        String weekSelection;
+                        String[] weekSelectionArgs;
+
+                        if (mCategory == -1){
+                            weekSelection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ?";
+                            weekSelectionArgs = new String[]{String.valueOf(weekStart), String.valueOf(weekEnd)};
+                        }
+                        else {
+                            weekSelection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
+                            weekSelectionArgs = new String[]{String.valueOf(weekStart), String.valueOf(weekEnd), String.valueOf(mCategory)};
+                        }
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, weekSelection, weekSelectionArgs, null);
+                        break;
+
+                    default:
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, null, null, null, null);
+                        break;
+
+                }
+
         }
         return cursorLoader;
     }
@@ -443,6 +554,14 @@ public class MainActivity extends ActionBarActivity
                 mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
                 c.close();
                 break;
+            case TACKLE_ITEMS_LOADER:
+                mTackleListAdapter.swapCursor(cursor);
+                mNavigationDrawerFragment.mDrawerAdapter.notifyDataSetChanged();
+                c.moveToFirst();
+                mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
+                c.close();
+                break;
+
         }
     }
 
@@ -452,8 +571,32 @@ public class MainActivity extends ActionBarActivity
             case CATEGORY_LOADER:
                 mNavigationDrawerFragment.mDrawerAdapter.swapCursor(null);
                 break;
+            case TACKLE_ITEMS_LOADER:
+                mTackleListAdapter.swapCursor(null);
+                break;
         }
 
+    }
+
+    @Override
+    public void onCategoryPicked(String category, int color) {
+
+        String colorString = getResources().getString(color);
+
+        ContentValues values = new ContentValues();
+        values.put(TackleContract.Categories.NAME, category);
+        values.put(TackleContract.Categories.COLOR, colorString);
+        getContentResolver().insert(TackleContract.Categories.CONTENT_URI, values);
+
+    }
+
+    @Override
+    public void onDeleteCategory(long id) {
+        getContentResolver().delete(TackleContract.Categories.CONTENT_URI, TackleContract.Categories.ID + "=" + id, null);
+        getContentResolver().delete(TackleContract.TackleItems.CONTENT_URI, TackleContract.TackleItems.CATEGORY_ID + "=" + id, null);
+        if (id == mCategory){
+            mNavigationDrawerFragment.selectItem(1, -1);
+        }
     }
 
     private class JSONWeatherTask extends AsyncTask<String, Void, Weather[]> {
@@ -521,6 +664,21 @@ public class MainActivity extends ActionBarActivity
         }
         mWeekViewFragment.setWeather(weatherIds);
         mDayViewFragment.setWeather(weatherIds);
+    }
+
+    private void tempData(){
+        ContentValues values = new ContentValues();
+        values.put(TackleContract.TackleItems.NAME, "practice todo");
+        values.put(TackleContract.TackleItems.CATEGORY_ID, 2);
+        values.put(TackleContract.TackleItems.START_DATE, System.currentTimeMillis());
+        values.put(TackleContract.TackleItems.TYPE, TackleContract.EVENT);
+
+        getContentResolver().insert(TackleContract.TackleItems.CONTENT_URI, values);
+    }
+
+    public void newCategory(View view){
+        DialogFragment categoryPicker = new ColorPickerDialog();
+        categoryPicker.show(getSupportFragmentManager(), "CategoryPicker");
     }
 
 }

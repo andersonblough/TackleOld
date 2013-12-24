@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/category_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:inputType="textCapSentences"
+        android:textSize="20dp"
+        android:textColor="#000"
+        android:hint="Category Title"/>
+    
+    <GridView
+        android:id="@+id/color_grid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:verticalSpacing="16dp"
+        android:numColumns="4"
+        android:layout_gravity="center"
+        android:gravity="center" />
+
+</LinearLayout>

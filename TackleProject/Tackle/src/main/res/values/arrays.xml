@@ -15,6 +15,21 @@
         <item>@drawable/december</item>
     </array>
 
+    <array name="colors">
+        <item>@color/aquateen</item>
+        <item>@color/bark</item>
+        <item>@color/bigbird</item>
+        <item>@color/blueblue</item>
+        <item>@color/firetruck</item>
+        <item>@color/illini</item>
+        <item>@color/leprechaun</item>
+        <item>@color/nurple</item>
+        <item>@color/pinkberry</item>
+        <item>@color/plum</item>
+        <item>@color/tidal</item>
+        <item>@color/umber</item>
+    </array>
+
     <array name="types">
         <item>To-Do</item>
         <item>List</item>

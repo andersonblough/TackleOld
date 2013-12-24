@@ -3,4 +3,21 @@
     <color name="Tackle" >#c888</color>
     <color name="Tackle_Green">#0DAD4B</color>
     <color name="Selection">#BBB</color>
+
+    <color name="dark_gray">#A0A0A0</color>
+    <color name="near_white">#fdfdfd</color>
+    <color name="black">#000</color>
+
+    <color name="umber">#C1272D</color>
+    <color name="firetruck">#FF1D1D</color>
+    <color name="illini">#FF7A08</color>
+    <color name="bigbird">#FFC100</color>
+    <color name="leprechaun">#34A500</color>
+    <color name="aquateen">#22B89B</color>
+    <color name="tidal">#00C4EE</color>
+    <color name="blueblue">#1A6CFF</color>
+    <color name="nurple">#764AFF</color>
+    <color name="plum">#B73EFF</color>
+    <color name="pinkberry">#D378FF</color>
+    <color name="bark">#A67C52</color>
 </resources>
