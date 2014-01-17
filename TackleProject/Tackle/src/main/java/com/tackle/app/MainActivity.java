@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -57,8 +58,8 @@ public class MainActivity extends ActionBarActivity
     private static final int SEC_PER_HOUR = 3600;
     private static final int THREE_HOURS = (3 * SEC_PER_HOUR * MILLI_PER_SECOND);
 
-    private static final int VIEW_STATE_WEEK = 0;
-    private static final int VIEW_STATE_DAY = 1;
+    public static final int VIEW_STATE_WEEK = 0;
+    public static final int VIEW_STATE_DAY = 1;
 
     private static final int CATEGORY_LOADER = 100;
     private static final int TACKLE_ITEMS_LOADER = 110;
@@ -82,10 +83,11 @@ public class MainActivity extends ActionBarActivity
 
     private DateHeaderFragment dateHeaderFragment;
     private DayHeaderFragment dayHeaderFragment;
-    private int mViewState;
-    private long mSelectedDay;
+    public int mViewState;
+    public long mSelectedDay;
     private long mTempDate;
-    public long mCategory =-1;
+    private long mCategory;
+    private int[] weatherIds;
 
 
     /**
@@ -120,26 +122,34 @@ public class MainActivity extends ActionBarActivity
         setUpActionBar();
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState != null){
+            mSelectedDay = savedInstanceState.getLong("selectedDay");
+            mTempDate = savedInstanceState.getLong("tempDate");
+            mCategory = savedInstanceState.getLong("category");
+            mViewState = savedInstanceState.getInt("viewState");
+            weatherIds = savedInstanceState.getIntArray("weather");
 
+        }
+        else {
+            mSelectedDay = System.currentTimeMillis();
+            mViewState = VIEW_STATE_WEEK;
+            mCategory = -1;
+            runnable.run();
+        }
 
         // set the date as the current date
         //setDate(System.currentTimeMillis());
         // add the fragments to the current view
-        mSelectedDay = System.currentTimeMillis();
         setUpMonthImage(mSelectedDay);
 
         setUpDateHeader(savedInstanceState);
-
-        runnable.run();
-
-        mViewState = VIEW_STATE_WEEK;
 
         getSupportLoaderManager().initLoader(CATEGORY_LOADER, null, this);
         getSupportLoaderManager().initLoader(TACKLE_ITEMS_LOADER, null, this);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        mTitle = getTitle(mCategory);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -162,9 +172,17 @@ public class MainActivity extends ActionBarActivity
 
         listView.addHeaderView(header);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(), EditActivity.class);
+                startActivityForResult(intent, 2);
+                overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
+            }
+        });
 
 
-        tempData();
+        //tempData();
 
     }
 
@@ -198,6 +216,7 @@ public class MainActivity extends ActionBarActivity
 
         //TODO: check if the date is current and if it has changed
 
+
         showDateHeader();
 
 
@@ -206,6 +225,11 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putLong("selectedDay", mSelectedDay);
+        outState.putInt("viewState", mViewState);
+        outState.putLong("tempDate", mTempDate);
+        outState.putLong("category", mCategory);
+        outState.putIntArray("weather", weatherIds);
 
 
     }
@@ -232,6 +256,10 @@ public class MainActivity extends ActionBarActivity
         if (savedInstanceState == null){
             manager.beginTransaction().add(R.id.container_week, mWeekViewFragment).hide(mWeekViewFragment).commit();
             manager.beginTransaction().add(R.id.container_day, mDayViewFragment).hide(mDayViewFragment).commit();
+            if (weatherIds != null){
+                mWeekViewFragment.setWeather(weatherIds);
+                mDayViewFragment.setWeather(weatherIds);
+            }
         }
         else {
             manager.beginTransaction().replace(R.id.container_week, mWeekViewFragment).hide(mWeekViewFragment).commit();
@@ -248,38 +276,24 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onNavigationDrawerItemSelected(long id) {
-        // update the main content by replacing fragments
-        //FragmentManager fragmentManager = getSupportFragmentManager();
-        //fragmentManager.beginTransaction()
-        //       .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-        //        .commit();
+        mTitle = getTitle(id);
+        getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
+
+    }
+
+    public String getTitle(long id){
         if (id == -1){
-            mTitle = "All";
             mCategory = id;
+            return "All";
         }
         else {
             mCategory = id;
             Uri uri = Uri.parse(TackleContract.Categories.CONTENT_URI + "/" + mCategory);
             Cursor c = getContentResolver().query(uri, null, null, null, null);
             c.moveToFirst();
-            mTitle = c.getString(c.getColumnIndex(TackleContract.Categories.NAME));
+            String title = c.getString(c.getColumnIndex(TackleContract.Categories.NAME));
             c.close();
-        }
-        getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
-        //onSectionAttached(position + 1);
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = "All";
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
+            return title;
         }
     }
 
@@ -318,6 +332,18 @@ public class MainActivity extends ActionBarActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
+            case R.id.add_todo:
+                addTackleItem(TackleContract.TODO);
+                return true;
+            case R.id.add_list:
+                addTackleItem(TackleContract.LIST);
+                return true;
+            case R.id.add_note:
+                addTackleItem(TackleContract.NOTE);
+                return true;
+            case R.id.add_event:
+                addTackleItem(TackleContract.EVENT);
+                return true;
             case R.id.action_settings:
                 return true;
             case R.id.today:
@@ -332,6 +358,22 @@ public class MainActivity extends ActionBarActivity
                 overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addTackleItem(int type) {
+
+        Intent intent = new Intent(this, AddActivity.class);
+        intent.putExtra("type", type);
+        if (mCategory == -1){
+            intent.putExtra("category", 1);
+        }
+        else {
+            intent.putExtra("category", mCategory);
+        }
+        intent.putExtra("dateTime", mSelectedDay);
+        startActivity(intent);
+        overridePendingTransition(0,0);
+
     }
 
     public void dayClicked(View view){
@@ -509,7 +551,7 @@ public class MainActivity extends ActionBarActivity
                             selectionArgs = new String[]{String.valueOf(startTime), String.valueOf(endTime), String.valueOf(mCategory)};
                         }
 
-                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, null);
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, TackleContract.TackleItems.START_DATE + " ASC");
                         break;
                     case VIEW_STATE_WEEK:
                         Calendar week = Calendar.getInstance();
@@ -531,7 +573,7 @@ public class MainActivity extends ActionBarActivity
                             weekSelection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
                             weekSelectionArgs = new String[]{String.valueOf(weekStart), String.valueOf(weekEnd), String.valueOf(mCategory)};
                         }
-                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, weekSelection, weekSelectionArgs, null);
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, weekSelection, weekSelectionArgs, TackleContract.TackleItems.START_DATE + " ASC");
                         break;
 
                     default:
@@ -546,23 +588,56 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> cursorLoader, Cursor cursor) {
-        Cursor c = getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, null, null, null, null);
         switch (cursorLoader.getId()){
             case CATEGORY_LOADER:
+                mNavigationDrawerFragment.mDrawerAdapter.setDateTime(mSelectedDay);
+                mNavigationDrawerFragment.mDrawerAdapter.setViewState(mViewState);
                 mNavigationDrawerFragment.mDrawerAdapter.swapCursor(cursor);
-                c.moveToFirst();
-                mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
-                c.close();
                 break;
             case TACKLE_ITEMS_LOADER:
                 mTackleListAdapter.swapCursor(cursor);
+                mNavigationDrawerFragment.mDrawerAdapter.setDateTime(mSelectedDay);
+                mNavigationDrawerFragment.mDrawerAdapter.setViewState(mViewState);
                 mNavigationDrawerFragment.mDrawerAdapter.notifyDataSetChanged();
-                c.moveToFirst();
-                mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
-                c.close();
                 break;
-
         }
+
+        Cursor c;
+        long start;
+        long end;
+        String selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ?";
+        String[] selectionArgs = new String[2];
+        String[] projection = {TackleContract.TackleItems.ID, TackleContract.TackleItems.START_DATE};
+
+        switch (mViewState){
+            case VIEW_STATE_DAY:
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(mSelectedDay);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                end = start + (24 * SEC_PER_HOUR * MILLI_PER_SECOND);
+                selectionArgs = new String[]{String.valueOf(start), String.valueOf(end)};
+                break;
+            case VIEW_STATE_WEEK:
+                Calendar week = Calendar.getInstance();
+                week.setTimeInMillis(mSelectedDay);
+                week.set(Calendar.HOUR_OF_DAY, 0);
+                week.set(Calendar.MINUTE, 0);
+                week.set(Calendar.SECOND, 0);
+                week.set(Calendar.MILLISECOND, 0);
+                start = week.getTimeInMillis();
+                end = start + (5 * 24 * SEC_PER_HOUR * MILLI_PER_SECOND);
+                selectionArgs = new String[]{String.valueOf(start), String.valueOf(end)};
+                break;
+        }
+
+        c = getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, null);
+        c.moveToFirst();
+        mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
+        c.close();
     }
 
     @Override
@@ -635,7 +710,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     private void initWeatherIds(Weather[] forecast){
-        int[] weatherIds = new int[5];
+        weatherIds = new int[5];
         if (forecast != null){
             for (int i = 0; i < forecast.length; i++){
                 Weather weather = forecast[i];
@@ -669,7 +744,7 @@ public class MainActivity extends ActionBarActivity
     private void tempData(){
         ContentValues values = new ContentValues();
         values.put(TackleContract.TackleItems.NAME, "practice todo");
-        values.put(TackleContract.TackleItems.CATEGORY_ID, 2);
+        values.put(TackleContract.TackleItems.CATEGORY_ID, 1);
         values.put(TackleContract.TackleItems.START_DATE, System.currentTimeMillis());
         values.put(TackleContract.TackleItems.TYPE, TackleContract.EVENT);
 

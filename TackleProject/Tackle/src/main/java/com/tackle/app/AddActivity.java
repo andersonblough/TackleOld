@@ -1,10 +1,13 @@
 package com.tackle.app;
 
+import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +20,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tackle.app.data.TackleContract;
 import com.tackle.app.views.TackleEditText;
 
 import java.util.Calendar;
@@ -25,7 +29,9 @@ import java.util.Calendar;
  * Created by Bill on 11/18/13.
  */
 public class AddActivity extends ActionBarActivity {
-    private String type;
+    private int mType;
+    private long mCategory;
+    private long mDate;
     private TackleEditText tackleText;
     private ActionBar actionBar;
     SpinnerAdapter mSpinnerAdapter;
@@ -33,12 +39,46 @@ public class AddActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
-        setUpMonthImage();
+
 
         initValues();
+        setUpMonthImage();
+
         setUpActionBar();
 
         tackleText = (TackleEditText) findViewById(R.id.tackle_edit_text);
+        tackleText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if (actionId == EditorInfo.IME_ACTION_DONE){
+                    if (TextUtils.isEmpty(textView.getText())){
+                        return false;
+                    }
+                    ContentValues values = new ContentValues();
+                    values.put(TackleContract.TackleItems.NAME, textView.getText().toString());
+                    values.put(TackleContract.TackleItems.CATEGORY_ID, mCategory);
+                    values.put(TackleContract.TackleItems.START_DATE, mDate);
+                    values.put(TackleContract.TackleItems.TYPE, mType);
+                    getContentResolver().insert(TackleContract.TackleItems.CONTENT_URI, values);
+
+                    finish();
+                    overridePendingTransition(0,0);
+                    return true;
+
+                }
+                return false;
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 2){
+            if (resultCode == RESULT_OK){
+                finish();
+
+            }
+        }
     }
 
     @Override
@@ -49,7 +89,9 @@ public class AddActivity extends ActionBarActivity {
 
     private void setUpMonthImage() {
         TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
-        int month = Calendar.getInstance().get(Calendar.MONTH);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(mDate);
+        int month = cal.get(Calendar.MONTH);
 
         ImageView monthImage = (ImageView) findViewById(R.id.month_image);
         monthImage.setImageDrawable(monthImages.getDrawable(month));
@@ -58,11 +100,20 @@ public class AddActivity extends ActionBarActivity {
     private void initValues() {
         Bundle extras = getIntent().getExtras();
         if (extras != null){
-            type = extras.getString("type");
+            mType = extras.getInt("type");
+            mDate = extras.getLong("dateTime");
+            mCategory = extras.getLong("category");
         }
         else {
-            type = "to-do";
+            mType = 1;
+            mDate = System.currentTimeMillis();
+            mCategory = 1;
         }
+        if (mCategory == 0){
+            mCategory = 1;
+        }
+
+
 
     }
 
@@ -94,19 +145,16 @@ public class AddActivity extends ActionBarActivity {
             public boolean onNavigationItemSelected(int postion, long id) {
                 String[] array = getResources().getStringArray(R.array.types);
                 setTackleText(array[postion].toLowerCase());
+                mType = postion + 1;
                 return true;
             }
         });
-        String[] types = getResources().getStringArray(R.array.types);
-        for (int i = 0; i < types.length; i++){
-            if (types[i].equalsIgnoreCase(type)){
-                actionBar.setSelectedNavigationItem(i);
-
-            }
-        }
+        actionBar.setSelectedNavigationItem(mType - 1);
     }
 
     public void onMoreClicked(View view){
-        Toast.makeText(this, "Edit More", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Edit More", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, EditActivity.class);
+        startActivityForResult(intent, 2);
     }
 }

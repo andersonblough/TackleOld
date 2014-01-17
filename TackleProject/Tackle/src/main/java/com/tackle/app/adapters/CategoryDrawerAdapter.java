@@ -13,14 +13,22 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tackle.app.MainActivity;
 import com.tackle.app.R;
 import com.tackle.app.data.TackleContract;
+
+import java.util.Calendar;
 
 /**
  * Created by Bill on 12/16/13.
  */
 public class CategoryDrawerAdapter extends CursorAdapter {
+    private static final int MILLI_PER_SECOND = 1000;
+    private static final int SEC_PER_HOUR = 3600;
+
     LayoutInflater layoutInflater;
+    int mViewState;
+    long mDateTime;
 
     public CategoryDrawerAdapter(Context context, Cursor cursor, boolean autoRequery){
         super(context, cursor, autoRequery);
@@ -49,7 +57,38 @@ public class CategoryDrawerAdapter extends CursorAdapter {
         int categoryID = cursor.getInt(cursor.getColumnIndex(TackleContract.Categories.ID));
         holder.category.setText(category);
 
-        Cursor count = context.getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, new String[]{TackleContract.TackleItems.ID, TackleContract.TackleItems.CATEGORY_ID}, categoryID + "=" + TackleContract.TackleItems.CATEGORY_ID, null, null);
+        String selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
+        String[] projection = {TackleContract.TackleItems.ID, TackleContract.TackleItems.CATEGORY_ID, TackleContract.TackleItems.START_DATE};
+        String[] selectionArgs = new String[3];
+        long start;
+        long end;
+
+        switch (mViewState){
+            case MainActivity.VIEW_STATE_DAY:
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(mDateTime);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                end = start + (24 * SEC_PER_HOUR * MILLI_PER_SECOND);
+                selectionArgs = new String[]{String.valueOf(start), String.valueOf(end), String.valueOf(categoryID)};
+                break;
+            case MainActivity.VIEW_STATE_WEEK:
+                Calendar week = Calendar.getInstance();
+                week.setTimeInMillis(mDateTime);
+                week.set(Calendar.HOUR_OF_DAY, 0);
+                week.set(Calendar.MINUTE, 0);
+                week.set(Calendar.SECOND, 0);
+                week.set(Calendar.MILLISECOND, 0);
+                start = week.getTimeInMillis();
+                end = start + (5 * 24 * SEC_PER_HOUR * MILLI_PER_SECOND);
+                selectionArgs = new String[]{String.valueOf(start), String.valueOf(end), String.valueOf(categoryID)};
+                break;
+        }
+
+        Cursor count = context.getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, null);
         count.moveToFirst();
         holder.count.setText(String.valueOf(count.getCount()));
         count.close();
@@ -65,5 +104,13 @@ public class CategoryDrawerAdapter extends CursorAdapter {
         ImageView color;
         TextView count;
 
+    }
+
+    public void setDateTime(long date){
+        mDateTime = date;
+    }
+
+    public void setViewState(int state){
+        mViewState = state;
     }
 }

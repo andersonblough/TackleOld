@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <GridView
+        android:id="@+id/repeatTypes"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:background="@color/lighter"
+        android:numColumns="3"/>
+
+    <FrameLayout
+        android:id="@+id/frame"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/frame"/>
+
+    <GridView
+        android:id="@+id/repeatDays"
+        android:layout_below="@+id/repeatTypes"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:background="@color/lighter"
+        android:numColumns="7"/>
+
+    <FrameLayout
+        android:layout_below="@+id/repeatTypes"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/frame"/>
+
+
+</RelativeLayout>

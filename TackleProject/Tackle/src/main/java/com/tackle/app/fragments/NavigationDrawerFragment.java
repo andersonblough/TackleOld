@@ -274,21 +274,6 @@ public class NavigationDrawerFragment extends Fragment{
             return true;
         }
 
-        switch (item.getItemId()){
-            case R.id.add_todo:
-                addItem(item.getTitle());
-                return true;
-            case R.id.add_list:
-                addItem(item.getTitle());
-                return true;
-            case R.id.add_note:
-                addItem(item.getTitle());
-                return true;
-            case R.id.add_event:
-                addItem(item.getTitle());
-                return true;
-        }
-
         //switch (item.getItemId()) {
         //   case R.id.action_example:
         //        Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
@@ -296,14 +281,6 @@ public class NavigationDrawerFragment extends Fragment{
         //}
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void addItem(CharSequence title) {
-        String type = title.toString().toLowerCase();
-        Intent intent = new Intent(getActivity(), AddActivity.class);
-        intent.putExtra("type", type);
-        startActivity(intent);
-        getActivity().overridePendingTransition(0,0);
     }
 
     /**

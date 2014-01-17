@@ -27,6 +27,7 @@ import java.util.Date;
 public class TackleListAdapter extends CursorAdapter {
     LayoutInflater inflater;
 
+
     public TackleListAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -139,7 +140,7 @@ public class TackleListAdapter extends CursorAdapter {
     @Override
     public int getItemViewType(int position) {
         Cursor cursor = (Cursor) getItem(position);
-        return cursor.getInt(cursor.getColumnIndex(TackleContract.TackleItems.TYPE));
+        return cursor.getInt(cursor.getColumnIndex(TackleContract.TackleItems.TYPE)) - 1;
     }
 
     @Override
@@ -158,7 +159,7 @@ public class TackleListAdapter extends CursorAdapter {
     }
 
     private Cursor getCategoryCursor(Context context, Cursor cursor){
-        int id = cursor.getInt(cursor.getColumnIndex(TackleContract.TackleItems.CATEGORY_ID));
+        long id = cursor.getLong(cursor.getColumnIndex(TackleContract.TackleItems.CATEGORY_ID));
         String[] projection = {TackleContract.Categories.ID, TackleContract.Categories.NAME, TackleContract.Categories.COLOR};
         return context.getContentResolver().query(TackleContract.Categories.CONTENT_URI, projection, TackleContract.Categories.ID + "=" + id, null, null);
     }

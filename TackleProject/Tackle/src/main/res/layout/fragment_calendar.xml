@@ -13,6 +13,15 @@
         android:adjustViewBounds="true"
         android:src="@drawable/april"/>
 
+    <FrameLayout
+        android:id="@+id/pick_date"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_alignBottom="@+id/month_image"
+        android:background="@drawable/selector_day"
+        android:clickable="true"
+        android:onClick="pickDate"/>
+
     <TextView
         android:id="@+id/month_text"
         android:layout_height="44dp"
@@ -24,15 +33,6 @@
         android:textColor="#000"
         android:fontFamily="sans-serif-light"
         android:gravity="center"/>
-
-    <FrameLayout
-        android:id="@+id/pick_date"
-        android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_alignBottom="@+id/month_image"
-        android:background="@drawable/selector_day"
-        android:clickable="true"
-        android:onClick="pickDate"/>
 
     <View
         android:layout_width="match_parent"

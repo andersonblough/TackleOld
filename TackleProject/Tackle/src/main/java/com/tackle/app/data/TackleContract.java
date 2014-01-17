@@ -13,8 +13,8 @@ public class TackleContract {
 
     public static final int TODO = 1;
     public static final int LIST = 2;
-    public static final int EVENT = 3;
-    public static final int NOTE = 4;
+    public static final int EVENT = 4;
+    public static final int NOTE = 3;
 
 
     public static final class Categories
