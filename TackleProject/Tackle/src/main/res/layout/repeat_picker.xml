@@ -2,7 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <GridView
         android:id="@+id/repeatTypes"
@@ -24,14 +24,26 @@
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:gravity="center"
+        android:visibility="gone"
         android:background="@color/lighter"
         android:numColumns="7"/>
 
     <FrameLayout
+        android:id="@+id/daysFrame"
         android:layout_below="@+id/repeatTypes"
         android:layout_width="match_parent"
         android:layout_height="44dp"
+        android:visibility="gone"
         android:background="@drawable/frame"/>
+
+    <Spinner
+        android:id="@+id/untilSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        android:layout_below="@id/repeatDays"/>
 
 
 </RelativeLayout>

@@ -1,32 +1,34 @@
 package com.tackle.app.views;
 
 import android.content.Context;
-import android.support.v4.view.GravityCompat;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tackle.app.R;
-
-import java.util.ArrayList;
 
 /**
  * Created by Bill on 1/17/14.
  */
 public class ReapeatPicker extends LinearLayout{
 
+    private static final int SINGLE_CHOICE = 100;
+    private static final int MULTIPLE_CHOICE = 200;
+
     private Context context;
 
     GridView repeatDays;
+    FrameLayout daysFrame;
+    Spinner untilSpinner;
 
 
     public ReapeatPicker(Context context) {
@@ -43,46 +45,63 @@ public class ReapeatPicker extends LinearLayout{
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.repeat_picker, this, true);
 
+        untilSpinner = (Spinner) findViewById(R.id.untilSpinner);
+        ArrayAdapter spinnerAdapter = ArrayAdapter.createFromResource(context, R.array.until, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        untilSpinner.setAdapter(spinnerAdapter);
+        untilSpinner.setSelection(0);
+
         repeatDays = (GridView) findViewById(R.id.repeatDays);
-        repeatDays.setVisibility(INVISIBLE);
+        daysFrame = (FrameLayout) findViewById(R.id.daysFrame);
 
         GridView repeatTypes = (GridView) findViewById(R.id.repeatTypes);
-        final Adapter adapter = new Adapter(titles);
+        final Adapter adapter = new Adapter(titles, SINGLE_CHOICE);
         repeatTypes.setAdapter(adapter);
         repeatTypes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 adapter.setSelectedView(i);
-                if (i == 0 && adapter.selectedPosition == 0){
-                    repeatDays.setVisibility(VISIBLE);
+                if (i == 0 && adapter.selected[i]){
+                    repeatDays.setVisibility(View.VISIBLE);
+                    daysFrame.setVisibility(View.VISIBLE);
                 }
                 else {
-                    repeatDays.setVisibility(INVISIBLE);
+                    repeatDays.setVisibility(View.GONE);
+                    daysFrame.setVisibility(View.GONE);
+                }
+                if (adapter.selected[i]){
+                    untilSpinner.setVisibility(View.VISIBLE);
+                }
+                else {
+                    untilSpinner.setVisibility(View.GONE);
                 }
             }
         });
-
-
-        final Adapter daysAdapter = new Adapter(days);
+        final Adapter daysAdapter = new Adapter(days, MULTIPLE_CHOICE);
         repeatDays.setAdapter(daysAdapter);
         repeatDays.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                daysAdapter.setSelections(i);
+                daysAdapter.setSelectedView(i);
             }
         });
 
     }
 
     private class Adapter extends BaseAdapter{
+        private int choiceMode;
         private String[] items;
-        private Boolean[] selections;
-        public int selectedPosition = -1;
+        public Boolean[] selected;
 
-        public Adapter(String[] items){
+        public Adapter(String[] items, int choiceMode){
             super();
             this.items = items;
-            selections = new Boolean[]{false, false, false, false, false, false, false};
+            this.choiceMode = choiceMode;
+            selected = new Boolean[items.length];
+            for (int i = 0; i < items.length; i++){
+                selected[i] = false;
+            }
+
         }
 
         @Override
@@ -95,24 +114,25 @@ public class ReapeatPicker extends LinearLayout{
             return i;
         }
 
-        public void setSelections(int position){
-            if (!selections[position]){
-                selections[position] = true;
-            }
-            else {
-                selections[position] = false;
-            }
-            notifyDataSetChanged();
-        }
-
         public void setSelectedView(int position){
-            if (selectedPosition == position){
-                selectedPosition = -1;
+            if (choiceMode == SINGLE_CHOICE){
+                for (int i = 0; i < selected.length; i++){
+                    if (i == position){
+                        selected[i] = true;
+                    }
+                    else {
+                        selected[i] = false;
+                    }
+                }
             }
             else {
-                selectedPosition = position;
+                if (selected[position]){
+                    selected[position] = false;
+                }
+                else {
+                    selected[position] = true;
+                }
             }
-
             notifyDataSetChanged();
         }
 
@@ -132,7 +152,7 @@ public class ReapeatPicker extends LinearLayout{
             view.setText(items[position]);
             view.setBackgroundResource(R.color.lighter);
 
-            if (position == selectedPosition || selections[position]){
+            if (selected[position]){
                 view.setBackgroundResource(R.color.medium_light);
             }
 

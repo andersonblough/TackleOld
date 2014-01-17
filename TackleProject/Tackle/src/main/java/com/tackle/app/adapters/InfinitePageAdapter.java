@@ -3,13 +3,14 @@ package com.tackle.app.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.tackle.app.fragments.CalendarFragment;
 
 /**
  * Created by Bill on 11/12/13.
  */
-public class InfinitePageAdapter extends FragmentPagerAdapter {
+public class InfinitePageAdapter extends FragmentStatePagerAdapter {
 
     CalendarFragment[] fragList;
 
