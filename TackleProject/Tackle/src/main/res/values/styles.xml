@@ -11,7 +11,13 @@
         <item name="android:actionBarWidgetTheme">@style/Theme.stylingactionbar.widget</item>
         <item name="android:actionDropDownStyle">@style/MyDropDownStyle</item>
         <item name="android:spinnerItemStyle">@style/MySpinnerItemStyle</item>
+        <item name="android:spinnerDropDownItemStyle">@style/MyDropDownItemStyle</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="MyDropDownItemStyle" parent="android:Widget.DropDownItem">
+        <item name="android:background">@drawable/selector_dropdown</item>
+        <item name="android:fontFamily">sans-serif-light</item>      
     </style>
 
     <style name="MySpinnerItemStyle" parent="android:TextAppearance.DeviceDefault.Widget.TextView.SpinnerItem">
@@ -25,7 +31,6 @@
     </style>
 
     <style name="MyDropDownStyle" parent="Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="android:background">@drawable/selector</item>
         <item name="android:dropDownSelector">@drawable/spinner_background</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_stylingactionbar</item>
     </style>

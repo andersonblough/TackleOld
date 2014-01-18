@@ -114,11 +114,20 @@ public class ReapeatPicker extends LinearLayout{
             return i;
         }
 
+        public void toggleSelected(int position){
+            if (selected[position]){
+                selected[position] = false;
+            }
+            else {
+                selected[position] = true;
+            }
+        }
+
         public void setSelectedView(int position){
             if (choiceMode == SINGLE_CHOICE){
                 for (int i = 0; i < selected.length; i++){
                     if (i == position){
-                        selected[i] = true;
+                        toggleSelected(i);
                     }
                     else {
                         selected[i] = false;
@@ -126,12 +135,8 @@ public class ReapeatPicker extends LinearLayout{
                 }
             }
             else {
-                if (selected[position]){
-                    selected[position] = false;
-                }
-                else {
-                    selected[position] = true;
-                }
+                toggleSelected(position);
+
             }
             notifyDataSetChanged();
         }
