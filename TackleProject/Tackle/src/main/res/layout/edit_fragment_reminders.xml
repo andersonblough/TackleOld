@@ -21,7 +21,8 @@
             android:textColor="@color/Tackle_Green"
             android:fontFamily="sans-serif-light"/>
 
-        <com.tackle.app.views.ReapeatPicker
+        <com.tackle.app.views.RepeatPicker
+            android:id="@+id/repeatPicker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"

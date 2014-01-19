@@ -1,12 +1,14 @@
 package com.tackle.app.views;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -15,53 +17,80 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.tackle.app.R;
+import com.tackle.app.adapters.RepeatSpinnerAdapter;
+
+import java.util.Date;
 
 /**
  * Created by Bill on 1/17/14.
  */
-public class ReapeatPicker extends LinearLayout{
+public class RepeatPicker extends LinearLayout{
 
     private static final int SINGLE_CHOICE = 100;
     private static final int MULTIPLE_CHOICE = 200;
 
     private Context context;
 
-    GridView repeatDays;
-    FrameLayout daysFrame;
-    Spinner untilSpinner;
+    private RepeatSpinnerListener mSpinnerListener;
+    private GridView repeatDays;
+    private FrameLayout daysFrame;
+    private UntilSpinner untilSpinner;
+
+    private Boolean[] selectedDays;
+    private Boolean[] selectedTypes;
+
+    public RepeatSpinnerAdapter spinnerAdapter;
+    Adapter typeAdapter;
+    Adapter daysAdapter;
 
 
-    public ReapeatPicker(Context context) {
+    public RepeatPicker(Context context) {
         this(context, null);
     }
 
-    public ReapeatPicker(Context context, AttributeSet attrs) {
+    public RepeatPicker(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
 
-        String[] titles = {"Weekly", "Monthly", "Yearly"};
+        String[] titles = {"Daily", "Weekly", "Monthly", "Yearly"};
         String[] days = {"S", "M", "T", "W", "T", "F", "S"};
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.repeat_picker, this, true);
 
-        untilSpinner = (Spinner) findViewById(R.id.untilSpinner);
-        ArrayAdapter spinnerAdapter = ArrayAdapter.createFromResource(context, R.array.until, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        untilSpinner = (UntilSpinner) findViewById(R.id.untilSpinner);
+        spinnerAdapter = new RepeatSpinnerAdapter(getContext());
         untilSpinner.setAdapter(spinnerAdapter);
-        untilSpinner.setSelection(0);
+        untilSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            boolean userClicked = false;
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (userClicked) {
+                    if (position == 1) {
+                        mSpinnerListener.onSpinnerItemSelected(position);
+                    }
+                }
+                userClicked = true;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         repeatDays = (GridView) findViewById(R.id.repeatDays);
+        repeatDays.setNumColumns(days.length);
         daysFrame = (FrameLayout) findViewById(R.id.daysFrame);
 
         GridView repeatTypes = (GridView) findViewById(R.id.repeatTypes);
-        final Adapter adapter = new Adapter(titles, SINGLE_CHOICE);
-        repeatTypes.setAdapter(adapter);
+        repeatTypes.setNumColumns(titles.length);
+        typeAdapter = new Adapter(titles, SINGLE_CHOICE);
+        repeatTypes.setAdapter(typeAdapter);
         repeatTypes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                adapter.setSelectedView(i);
-                if (i == 0 && adapter.selected[i]){
+                typeAdapter.setSelectedView(i);
+                if (i == 1 && typeAdapter.selected[i]){
                     repeatDays.setVisibility(View.VISIBLE);
                     daysFrame.setVisibility(View.VISIBLE);
                 }
@@ -69,24 +98,53 @@ public class ReapeatPicker extends LinearLayout{
                     repeatDays.setVisibility(View.GONE);
                     daysFrame.setVisibility(View.GONE);
                 }
-                if (adapter.selected[i]){
+                if (typeAdapter.selected[i]){
                     untilSpinner.setVisibility(View.VISIBLE);
                 }
                 else {
                     untilSpinner.setVisibility(View.GONE);
                 }
+                selectedTypes = typeAdapter.selected;
             }
         });
-        final Adapter daysAdapter = new Adapter(days, MULTIPLE_CHOICE);
+        daysAdapter = new Adapter(days, MULTIPLE_CHOICE);
         repeatDays.setAdapter(daysAdapter);
         repeatDays.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 daysAdapter.setSelectedView(i);
+                selectedDays = typeAdapter.selected;
             }
         });
 
     }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+
+        return super.onSaveInstanceState();
+    }
+
+    public Boolean[] getSelectedDays(){
+        return selectedDays;
+    }
+
+    public void setSelectedDays(Boolean[] selected){
+        selectedDays = selected;
+        daysAdapter.selected = selectedDays;
+        daysAdapter.notifyDataSetChanged();
+    }
+
+    public interface RepeatSpinnerListener{
+        public void onSpinnerItemSelected(int position);
+    }
+
+    public void setSpinnerListener(RepeatSpinnerListener listener){
+        mSpinnerListener = listener;
+    }
+
+
 
     private class Adapter extends BaseAdapter{
         private int choiceMode;

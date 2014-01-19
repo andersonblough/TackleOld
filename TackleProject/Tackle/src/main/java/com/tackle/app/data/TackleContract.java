@@ -8,6 +8,22 @@ import android.provider.BaseColumns;
  */
 public class TackleContract {
 
+    public interface TackleEventColumns{
+        public static final String NAME = "name";
+        public static final String TYPE = "type";
+        public static final String START_DATE = "start_date";
+        public static final String END_DATE = "end_date";
+        public static final String TIMEZONE = "timezone";
+        public static final String ALL_DAY = "all_day";
+        public static final String FREQUENCY = "freq";
+        public static final String BY_DAY = "by_day";
+        public static final String UNTIL = "until";
+        public static final String COUNT = "count";
+        public static final String NOTES = "notes";
+        public static final String CATEGORY_ID = "cat_id";
+        public static final String STATUS = "status";
+    }
+
     private static final String SCHEME = "content://";
     public static final String AUTHORITY = "com.tackle.app.data.TackleProvider";
 
