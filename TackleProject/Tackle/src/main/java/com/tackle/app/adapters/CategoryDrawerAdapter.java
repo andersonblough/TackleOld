@@ -53,12 +53,12 @@ public class CategoryDrawerAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         Holder holder = (Holder) view.getTag();
 
-        String category = cursor.getString(cursor.getColumnIndex(TackleContract.Categories.NAME));
-        int categoryID = cursor.getInt(cursor.getColumnIndex(TackleContract.Categories.ID));
+        String category = cursor.getString(cursor.getColumnIndex(TackleContract.Categories.CATEGORY_NAME));
+        int categoryID = cursor.getInt(cursor.getColumnIndex(TackleContract.Categories._ID));
         holder.category.setText(category);
 
-        String selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
-        String[] projection = {TackleContract.TackleItems.ID, TackleContract.TackleItems.CATEGORY_ID, TackleContract.TackleItems.START_DATE};
+        String selection = TackleContract.TackleEvent.START_DATE + " >= ? AND " + TackleContract.TackleEvent.START_DATE + " <= ? AND " + TackleContract.TackleEvent.CATEGORY_ID + " = ?";
+        String[] projection = {TackleContract.TackleEvent._ID, TackleContract.TackleEvent.CATEGORY_ID, TackleContract.TackleEvent.START_DATE};
         String[] selectionArgs = new String[3];
         long start;
         long end;
@@ -88,7 +88,7 @@ public class CategoryDrawerAdapter extends CursorAdapter {
                 break;
         }
 
-        Cursor count = context.getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, null);
+        Cursor count = context.getContentResolver().query(TackleContract.TackleEvent.CONTENT_URI, projection, selection, selectionArgs, null);
         count.moveToFirst();
         holder.count.setText(String.valueOf(count.getCount()));
         count.close();

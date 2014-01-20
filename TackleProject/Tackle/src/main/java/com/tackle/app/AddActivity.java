@@ -6,19 +6,15 @@ import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tackle.app.data.TackleContract;
 import com.tackle.app.views.TackleEditText;
@@ -55,11 +51,11 @@ public class AddActivity extends ActionBarActivity {
                         return false;
                     }
                     ContentValues values = new ContentValues();
-                    values.put(TackleContract.TackleItems.NAME, textView.getText().toString());
-                    values.put(TackleContract.TackleItems.CATEGORY_ID, mCategory);
-                    values.put(TackleContract.TackleItems.START_DATE, mDate);
-                    values.put(TackleContract.TackleItems.TYPE, mType);
-                    getContentResolver().insert(TackleContract.TackleItems.CONTENT_URI, values);
+                    values.put(TackleContract.TackleEvent.NAME, textView.getText().toString());
+                    values.put(TackleContract.TackleEvent.CATEGORY_ID, mCategory);
+                    values.put(TackleContract.TackleEvent.START_DATE, mDate);
+                    values.put(TackleContract.TackleEvent.TYPE, mType);
+                    getContentResolver().insert(TackleContract.TackleEvent.CONTENT_URI, values);
 
                     finish();
                     overridePendingTransition(0,0);

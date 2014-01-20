@@ -6,17 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
-import android.support.v4.view.PagerTitleStrip;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -37,6 +34,7 @@ import com.tackle.app.Weather.Weather;
 import com.tackle.app.Weather.WeatherHTTPClient;
 import com.tackle.app.adapters.TackleListAdapter;
 import com.tackle.app.data.TackleContract;
+import com.tackle.app.data.TackleEvent;
 import com.tackle.app.fragments.DateHeaderFragment;
 import com.tackle.app.fragments.DayHeaderFragment;
 import com.tackle.app.fragments.DayViewFragment;
@@ -46,7 +44,6 @@ import com.tackle.app.views.QuoteView;
 
 import org.json.JSONException;
 
-import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
@@ -181,9 +178,6 @@ public class MainActivity extends ActionBarActivity
             }
         });
 
-
-        //tempData();
-
     }
 
     @Override
@@ -291,7 +285,7 @@ public class MainActivity extends ActionBarActivity
             Uri uri = Uri.parse(TackleContract.Categories.CONTENT_URI + "/" + mCategory);
             Cursor c = getContentResolver().query(uri, null, null, null, null);
             c.moveToFirst();
-            String title = c.getString(c.getColumnIndex(TackleContract.Categories.NAME));
+            String title = c.getString(c.getColumnIndex(TackleContract.Categories.CATEGORY_NAME));
             c.close();
             return title;
         }
@@ -333,16 +327,16 @@ public class MainActivity extends ActionBarActivity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.add_todo:
-                addTackleItem(TackleContract.TODO);
+                addTackleItem(TackleEvent.Type.TODO);
                 return true;
             case R.id.add_list:
-                addTackleItem(TackleContract.LIST);
+                addTackleItem(TackleEvent.Type.LIST);
                 return true;
             case R.id.add_note:
-                addTackleItem(TackleContract.NOTE);
+                addTackleItem(TackleEvent.Type.NOTE);
                 return true;
             case R.id.add_event:
-                addTackleItem(TackleContract.EVENT);
+                addTackleItem(TackleEvent.Type.EVENT);
                 return true;
             case R.id.action_settings:
                 return true;
@@ -528,7 +522,7 @@ public class MainActivity extends ActionBarActivity
                 cursorLoader = new CursorLoader(this, TackleContract.Categories.CONTENT_URI, null, null, null, null);
                 break;
             case TACKLE_ITEMS_LOADER:
-                String[] projection = {TackleContract.TackleItems.ID, TackleContract.TackleItems.NAME, TackleContract.TackleItems.TYPE, TackleContract.TackleItems.START_DATE, TackleContract.TackleItems.STATUS, TackleContract.TackleItems.CATEGORY_ID};
+                String[] projection = {TackleContract.TackleEvent._ID, TackleContract.TackleEvent.NAME, TackleContract.TackleEvent.TYPE, TackleContract.TackleEvent.START_DATE, TackleContract.TackleEvent.STATUS, TackleContract.TackleEvent.CATEGORY_ID};
                 switch (mViewState){
                     case VIEW_STATE_DAY:
                         Calendar cal = Calendar.getInstance();
@@ -543,15 +537,15 @@ public class MainActivity extends ActionBarActivity
                         String[] selectionArgs;
 
                         if (mCategory == -1){
-                            selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ?";
+                            selection = TackleContract.TackleEvent.START_DATE + " >= ? AND " + TackleContract.TackleEvent.START_DATE + " <= ?";
                             selectionArgs = new String[]{String.valueOf(startTime), String.valueOf(endTime)};
                         }
                         else {
-                            selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
+                            selection = TackleContract.TackleEvent.START_DATE + " >= ? AND " + TackleContract.TackleEvent.START_DATE + " <= ? AND " + TackleContract.TackleEvent.CATEGORY_ID + " = ?";
                             selectionArgs = new String[]{String.valueOf(startTime), String.valueOf(endTime), String.valueOf(mCategory)};
                         }
 
-                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, TackleContract.TackleItems.START_DATE + " ASC");
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleEvent.CONTENT_URI, projection, selection, selectionArgs, TackleContract.TackleEvent.START_DATE + " ASC");
                         break;
                     case VIEW_STATE_WEEK:
                         Calendar week = Calendar.getInstance();
@@ -566,18 +560,18 @@ public class MainActivity extends ActionBarActivity
                         String[] weekSelectionArgs;
 
                         if (mCategory == -1){
-                            weekSelection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ?";
+                            weekSelection = TackleContract.TackleEvent.START_DATE + " >= ? AND " + TackleContract.TackleEvent.START_DATE + " <= ?";
                             weekSelectionArgs = new String[]{String.valueOf(weekStart), String.valueOf(weekEnd)};
                         }
                         else {
-                            weekSelection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ? AND " + TackleContract.TackleItems.CATEGORY_ID + " = ?";
+                            weekSelection = TackleContract.TackleEvent.START_DATE + " >= ? AND " + TackleContract.TackleEvent.START_DATE + " <= ? AND " + TackleContract.TackleEvent.CATEGORY_ID + " = ?";
                             weekSelectionArgs = new String[]{String.valueOf(weekStart), String.valueOf(weekEnd), String.valueOf(mCategory)};
                         }
-                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, projection, weekSelection, weekSelectionArgs, TackleContract.TackleItems.START_DATE + " ASC");
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleEvent.CONTENT_URI, projection, weekSelection, weekSelectionArgs, TackleContract.TackleEvent.START_DATE + " ASC");
                         break;
 
                     default:
-                        cursorLoader = new CursorLoader(this, TackleContract.TackleItems.CONTENT_URI, null, null, null, null);
+                        cursorLoader = new CursorLoader(this, TackleContract.TackleEvent.CONTENT_URI, null, null, null, null);
                         break;
 
                 }
@@ -605,9 +599,9 @@ public class MainActivity extends ActionBarActivity
         Cursor c;
         long start;
         long end;
-        String selection = TackleContract.TackleItems.START_DATE + " >= ? AND " + TackleContract.TackleItems.START_DATE + " <= ?";
+        String selection = TackleContract.TackleEvent.START_DATE + " >= ? AND " + TackleContract.TackleEvent.START_DATE + " <= ?";
         String[] selectionArgs = new String[2];
-        String[] projection = {TackleContract.TackleItems.ID, TackleContract.TackleItems.START_DATE};
+        String[] projection = {TackleContract.TackleEvent._ID, TackleContract.TackleEvent.START_DATE};
 
         switch (mViewState){
             case VIEW_STATE_DAY:
@@ -634,7 +628,7 @@ public class MainActivity extends ActionBarActivity
                 break;
         }
 
-        c = getContentResolver().query(TackleContract.TackleItems.CONTENT_URI, projection, selection, selectionArgs, null);
+        c = getContentResolver().query(TackleContract.TackleEvent.CONTENT_URI, projection, selection, selectionArgs, null);
         c.moveToFirst();
         mNavigationDrawerFragment.count.setText(String.valueOf(c.getCount()));
         c.close();
@@ -659,7 +653,7 @@ public class MainActivity extends ActionBarActivity
         String colorString = getResources().getString(color);
 
         ContentValues values = new ContentValues();
-        values.put(TackleContract.Categories.NAME, category);
+        values.put(TackleContract.Categories.CATEGORY_NAME, category);
         values.put(TackleContract.Categories.COLOR, colorString);
         getContentResolver().insert(TackleContract.Categories.CONTENT_URI, values);
 
@@ -667,8 +661,8 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onDeleteCategory(long id) {
-        getContentResolver().delete(TackleContract.Categories.CONTENT_URI, TackleContract.Categories.ID + "=" + id, null);
-        getContentResolver().delete(TackleContract.TackleItems.CONTENT_URI, TackleContract.TackleItems.CATEGORY_ID + "=" + id, null);
+        getContentResolver().delete(TackleContract.Categories.CONTENT_URI, TackleContract.Categories._ID + "=" + id, null);
+        getContentResolver().delete(TackleContract.TackleEvent.CONTENT_URI, TackleContract.TackleEvent.CATEGORY_ID + "=" + id, null);
         if (id == mCategory){
             mNavigationDrawerFragment.selectItem(1, -1);
         }
@@ -739,16 +733,6 @@ public class MainActivity extends ActionBarActivity
         }
         mWeekViewFragment.setWeather(weatherIds);
         mDayViewFragment.setWeather(weatherIds);
-    }
-
-    private void tempData(){
-        ContentValues values = new ContentValues();
-        values.put(TackleContract.TackleItems.NAME, "practice todo");
-        values.put(TackleContract.TackleItems.CATEGORY_ID, 1);
-        values.put(TackleContract.TackleItems.START_DATE, System.currentTimeMillis());
-        values.put(TackleContract.TackleItems.TYPE, TackleContract.EVENT);
-
-        getContentResolver().insert(TackleContract.TackleItems.CONTENT_URI, values);
     }
 
     public void newCategory(View view){

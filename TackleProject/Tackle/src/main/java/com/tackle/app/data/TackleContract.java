@@ -8,6 +8,10 @@ import android.provider.BaseColumns;
  */
 public class TackleContract {
 
+    private static final String SCHEME = "content://";
+    public static final String AUTHORITY = "com.tackle.app.data.TackleProvider";
+
+
     public interface TackleEventColumns{
         public static final String NAME = "name";
         public static final String TYPE = "type";
@@ -24,17 +28,17 @@ public class TackleContract {
         public static final String STATUS = "status";
     }
 
-    private static final String SCHEME = "content://";
-    public static final String AUTHORITY = "com.tackle.app.data.TackleProvider";
+    public interface CategoryColomns{
+        public static final String CATEGORY_NAME = "cat_name";
+        public static final String COLOR = "color";
+    }
 
-    public static final int TODO = 1;
-    public static final int LIST = 2;
-    public static final int EVENT = 4;
-    public static final int NOTE = 3;
-
-
-    public static final class Categories
+    public static final class Categories implements BaseColumns, CategoryColomns
     {
+        public static final long DEFAULT_ID = 1;
+        public static final String DEFAULT_TITLE = "Inbox";
+        public static final String DEFAULT_COLOR = "#CCCCCC";
+
         public static final String TABLE_NAME = "categories";
 
         private static final String BASE_PATH = "/" + TABLE_NAME;
@@ -46,15 +50,11 @@ public class TackleContract {
 
         public static final int CATEGORIES = 100;
         public static final int CATEGORY_ID = 110;
-
-        public static final String ID = "_id";
-        public static final String NAME =  "name";
-        public static final String COLOR = "color";
     }
 
-    public static final class TackleItems
+    public static final class TackleEvent implements BaseColumns, TackleEventColumns
     {
-        public static final String TABLE_NAME = "tackleitems";
+        public static final String TABLE_NAME = "tackle_events";
 
         private static final String BASE_PATH = "/" + TABLE_NAME;
 
@@ -65,17 +65,6 @@ public class TackleContract {
 
         public static final int TACKLE_ITEMS = 120;
         public static final int TACKLE_ITEM_ID = 130;
-
-        public static final String ID = "_id";
-        public static final String NAME = "name";
-        public static final String TYPE = "type";
-        public static final String NOTES = "notes";
-        public static final String STATUS = "status";
-        public static final String TIMEZONE = "timezone";
-        public static final String START_DATE = "startDate";
-        public static final String END_DATE = "endDate";
-        public static final String REMINDER_ID = "reminderID";
-        public static final String CATEGORY_ID = "categoryID";
 
     }
 
@@ -94,7 +83,7 @@ public class TackleContract {
         public static final int REMINDER_ID = 150;
 
         public static final String ID = "_id";
-        public static final String ITEM_ID = "itemID";
+        public static final String EVENT_ID = "event_id";
         public static final String TIMEZONE = "timezone";
         public static final String DATE_TIME = "dateTime";
 
@@ -118,6 +107,30 @@ public class TackleContract {
         public static final String NAME = "name";
         public static final String QUANTITY = "quantity";
         public static final String STATUS = "status";
-        public static final String LIST_ID = "listID";
+        public static final String EVENT_ID = "event_id";
+    }
+
+    public static final class TackleInstances implements BaseColumns, TackleEventColumns, CategoryColomns
+    {
+        public static final String TABLE_NAME = "instances";
+
+        private static final String BASE_PATH = "/" + TABLE_NAME;
+
+        public static final Uri CONTENT_URI = Uri.parse(SCHEME + AUTHORITY + BASE_PATH);
+
+        public static final String URI_TYPE_DIR = "vnd.android.cursor.dir/vnd." + AUTHORITY + "." + TABLE_NAME;
+        public static final String URI_TYPE_ITEM = "vnd.android.cursor.item/vnd." + AUTHORITY + "." + TABLE_NAME;
+
+        public static final int INSTANCES = 180;
+        public static final int INSTANCE_ID = 190;
+
+        public static final String EVENT_ID = "event_id";
+        public static final String BEGIN_DATE = "begin";
+        public static final String END_DATE = "end";
+        public static final String START_DAY = "start_day";
+        public static final String START_MINUTE = "start_min";
+        public static final String END_DAY = "end_day";
+        public static final String END_MINUTE = "end_min";
+
     }
 }

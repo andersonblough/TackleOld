@@ -22,8 +22,8 @@ public class TackleProvider extends ContentProvider {
     {
         sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.Categories.TABLE_NAME, TackleContract.Categories.CATEGORIES);
         sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.Categories.TABLE_NAME + "/#", TackleContract.Categories.CATEGORY_ID);
-        sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.TackleItems.TABLE_NAME, TackleContract.TackleItems.TACKLE_ITEMS);
-        sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.TackleItems.TABLE_NAME + "/#", TackleContract.TackleItems.TACKLE_ITEM_ID);
+        sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.TackleEvent.TABLE_NAME, TackleContract.TackleEvent.TACKLE_ITEMS);
+        sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.TackleEvent.TABLE_NAME + "/#", TackleContract.TackleEvent.TACKLE_ITEM_ID);
         sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.Reminders.TABLE_NAME, TackleContract.Reminders.REMINDERS);
         sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.Reminders.TABLE_NAME + "/#", TackleContract.Reminders.REMINDER_ID);
         sUriMatcher.addURI(TackleContract.AUTHORITY, TackleContract.ListItems.TABLE_NAME, TackleContract.ListItems.LIST_ITEMS);
@@ -42,16 +42,16 @@ public class TackleProvider extends ContentProvider {
 
         int uriType = sUriMatcher.match(uri);
         switch (uriType) {
-            case TackleContract.TackleItems.TACKLE_ITEM_ID:
-                queryBuilder.setTables(TackleContract.TackleItems.TABLE_NAME);
-                queryBuilder.appendWhere(TackleContract.TackleItems.ID + "=" + uri.getLastPathSegment());
+            case TackleContract.TackleEvent.TACKLE_ITEM_ID:
+                queryBuilder.setTables(TackleContract.TackleEvent.TABLE_NAME);
+                queryBuilder.appendWhere(TackleContract.TackleEvent._ID + "=" + uri.getLastPathSegment());
                 break;
-            case TackleContract.TackleItems.TACKLE_ITEMS:
-                queryBuilder.setTables(TackleContract.TackleItems.TABLE_NAME);
+            case TackleContract.TackleEvent.TACKLE_ITEMS:
+                queryBuilder.setTables(TackleContract.TackleEvent.TABLE_NAME);
                 break;
             case TackleContract.Categories.CATEGORY_ID:
                 queryBuilder.setTables(TackleContract.Categories.TABLE_NAME);
-                queryBuilder.appendWhere(TackleContract.Categories.ID + "=" + uri.getLastPathSegment());
+                queryBuilder.appendWhere(TackleContract.Categories._ID + "=" + uri.getLastPathSegment());
                 break;
             case TackleContract.Categories.CATEGORIES:
                 queryBuilder.setTables(TackleContract.Categories.TABLE_NAME);
@@ -87,10 +87,10 @@ public class TackleProvider extends ContentProvider {
                 return TackleContract.Categories.URI_TYPE_DIR;
             case TackleContract.Categories.CATEGORY_ID:
                 return TackleContract.Categories.URI_TYPE_ITEM;
-            case TackleContract.TackleItems.TACKLE_ITEMS:
-                return TackleContract.TackleItems.URI_TYPE_DIR;
-            case TackleContract.TackleItems.TACKLE_ITEM_ID:
-                return TackleContract.TackleItems.URI_TYPE_ITEM;
+            case TackleContract.TackleEvent.TACKLE_ITEMS:
+                return TackleContract.TackleEvent.URI_TYPE_DIR;
+            case TackleContract.TackleEvent.TACKLE_ITEM_ID:
+                return TackleContract.TackleEvent.URI_TYPE_ITEM;
             case TackleContract.Reminders.REMINDERS:
                 return TackleContract.Reminders.URI_TYPE_DIR;
             case TackleContract.Reminders.REMINDER_ID:
@@ -114,10 +114,10 @@ public class TackleProvider extends ContentProvider {
         long rowID;
 
         switch (uriType) {
-            case TackleContract.TackleItems.TACKLE_ITEMS:
-                rowID = db.insert(TackleContract.TackleItems.TABLE_NAME, null, values);
+            case TackleContract.TackleEvent.TACKLE_ITEMS:
+                rowID = db.insert(TackleContract.TackleEvent.TABLE_NAME, null, values);
                 if (rowID > 0){
-                    rowUri = ContentUris.withAppendedId(TackleContract.TackleItems.CONTENT_URI, rowID);
+                    rowUri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, rowID);
                     getContext().getContentResolver().notifyChange(rowUri, null);
                     return rowUri;
                 }
@@ -159,18 +159,18 @@ public class TackleProvider extends ContentProvider {
         String id;
 
         switch (uriType) {
-            case TackleContract.TackleItems.TACKLE_ITEMS:
-                rowsAffected = db.delete(TackleContract.TackleItems.TABLE_NAME, selection, selectionArgs);
+            case TackleContract.TackleEvent.TACKLE_ITEMS:
+                rowsAffected = db.delete(TackleContract.TackleEvent.TABLE_NAME, selection, selectionArgs);
                 break;
-            case TackleContract.TackleItems.TACKLE_ITEM_ID:
+            case TackleContract.TackleEvent.TACKLE_ITEM_ID:
                 id = uri.getLastPathSegment();
                 if(TextUtils.isEmpty(selection)){
-                    String where = TackleContract.TackleItems.ID + "=" + id;
-                    rowsAffected = db.delete(TackleContract.TackleItems.TABLE_NAME, where, null);
+                    String where = TackleContract.TackleEvent._ID + "=" + id;
+                    rowsAffected = db.delete(TackleContract.TackleEvent.TABLE_NAME, where, null);
                 }
                 else {
-                    String where = selection + " AND " + TackleContract.TackleItems.ID + "=" + id;
-                    rowsAffected = db.delete(TackleContract.TackleItems.TABLE_NAME, where, null);
+                    String where = selection + " AND " + TackleContract.TackleEvent._ID + "=" + id;
+                    rowsAffected = db.delete(TackleContract.TackleEvent.TABLE_NAME, where, null);
                 }
                 break;
             case TackleContract.Categories.CATEGORIES:
@@ -179,11 +179,11 @@ public class TackleProvider extends ContentProvider {
             case TackleContract.Categories.CATEGORY_ID:
                 id = uri.getLastPathSegment();
                 if(TextUtils.isEmpty(selection)){
-                    String where = TackleContract.Categories.ID + "=" + id;
+                    String where = TackleContract.Categories._ID + "=" + id;
                     rowsAffected = db.delete(TackleContract.Categories.TABLE_NAME, where, null);
                 }
                 else {
-                    String where = selection + " AND " + TackleContract.Categories.ID + "=" + id;
+                    String where = selection + " AND " + TackleContract.Categories._ID + "=" + id;
                     rowsAffected = db.delete(TackleContract.Categories.TABLE_NAME, where, null);
                 }
                 break;
@@ -232,15 +232,15 @@ public class TackleProvider extends ContentProvider {
 
 
         switch (uriType) {
-            case TackleContract.TackleItems.TACKLE_ITEMS:
-                rowsUpdated = db.update(TackleContract.TackleItems.TABLE_NAME, values, selection, selectionArgs);
+            case TackleContract.TackleEvent.TACKLE_ITEMS:
+                rowsUpdated = db.update(TackleContract.TackleEvent.TABLE_NAME, values, selection, selectionArgs);
                 break;
-            case TackleContract.TackleItems.TACKLE_ITEM_ID:
+            case TackleContract.TackleEvent.TACKLE_ITEM_ID:
                 id = uri.getLastPathSegment();
                 if(TextUtils.isEmpty(selection)){
-                    db.update(TackleContract.TackleItems.TABLE_NAME, values, TackleContract.TackleItems.ID + "=" + id, null);
+                    db.update(TackleContract.TackleEvent.TABLE_NAME, values, TackleContract.TackleEvent._ID + "=" + id, null);
                 } else {
-                    db.update(TackleContract.TackleItems.TABLE_NAME, values, TackleContract.TackleItems.ID + "=" + id + " and " + selection, selectionArgs);
+                    db.update(TackleContract.TackleEvent.TABLE_NAME, values, TackleContract.TackleEvent._ID + "=" + id + " and " + selection, selectionArgs);
                 }
                 break;
             case TackleContract.Categories.CATEGORIES:
@@ -249,9 +249,9 @@ public class TackleProvider extends ContentProvider {
             case TackleContract.Categories.CATEGORY_ID:
                 id = uri.getLastPathSegment();
                 if(TextUtils.isEmpty(selection)){
-                    db.update(TackleContract.Categories.TABLE_NAME, values, TackleContract.Categories.ID + "=" + id, null);
+                    db.update(TackleContract.Categories.TABLE_NAME, values, TackleContract.Categories._ID + "=" + id, null);
                 } else {
-                    db.update(TackleContract.Categories.TABLE_NAME, values, TackleContract.Categories.ID + "=" + id + " and " + selection, selectionArgs);
+                    db.update(TackleContract.Categories.TABLE_NAME, values, TackleContract.Categories._ID + "=" + id + " and " + selection, selectionArgs);
                 }
                 break;
             case TackleContract.ListItems.LIST_ITEMS:
