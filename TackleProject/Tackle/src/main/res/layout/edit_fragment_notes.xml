@@ -27,6 +27,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:gravity="top"
+        android:textCursorDrawable="@null"
         android:background="@android:color/white"
         android:textColor="@color/Tackle"
         android:hint="make a note..."/>

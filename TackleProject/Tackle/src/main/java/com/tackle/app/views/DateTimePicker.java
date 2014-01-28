@@ -16,8 +16,11 @@ import java.util.Locale;
  * Created by Bill on 1/16/14.
  */
 public class DateTimePicker extends LinearLayout {
+
     private TextView fromTo, month, day, year, time;
     private Calendar date;
+    private OnClickListener mListener;
+
     public DateTimePicker(Context context) {
         this(context, null);
     }
@@ -59,5 +62,8 @@ public class DateTimePicker extends LinearLayout {
         time.setText(dateFormat.format(date.getTime()));
     }
 
+    public interface OnClickListener{
+        public void onClick(int choice);
+    }
 
 }

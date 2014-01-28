@@ -7,7 +7,7 @@
     android:textSize="18dp"
     android:gravity="center"
     android:textColor="@color/black"
-    android:fontFamily="sans-serif-light"
-    android:background="@color/lighter">
+    android:background="@drawable/selector_grid_view"
+    android:fontFamily="sans-serif-light">
 
 </TextView>

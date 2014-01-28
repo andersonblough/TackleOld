@@ -40,6 +40,7 @@
         android:layout_alignEnd="@+id/quote_text"
         android:layout_margin="8dp"
         android:text="- author"
-        android:textSize="18dp"/>
+        android:textSize="18dp"
+        android:textColor="@color/Tackle"/>
 
 </RelativeLayout>

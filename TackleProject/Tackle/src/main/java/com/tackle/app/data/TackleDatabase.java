@@ -31,8 +31,8 @@ public class TackleDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_CREATE_INSTANCES = "create table " + TackleContract.TackleInstances.TABLE_NAME + "("
             + TackleContract.TackleInstances._ID + " integer primary key autoincrement, "
             + TackleContract.TackleInstances.EVENT_ID + " integer, "
-            + TackleContract.TackleInstances.BEGIN_DATE + "  integer, "
-            + TackleContract.TackleInstances.END_DATE + " integer, "
+            + TackleContract.TackleInstances.BEGIN + "  integer, "
+            + TackleContract.TackleInstances.END + " integer, "
             + TackleContract.TackleInstances.START_DAY + " integer, "
             + TackleContract.TackleInstances.START_MINUTE + " integer, "
             + TackleContract.TackleInstances.END_DAY + " integer, "
@@ -88,7 +88,7 @@ public class TackleDatabase extends SQLiteOpenHelper {
         db.execSQL(DATABASE_CREATE_INSTANCES);
 
         // Set up database to have an INBOX Category
-        db.execSQL("INSERT INTO categories(_id, name, color) VALUES(1, 'Inbox', '#CCCCCC')");
+        db.execSQL("INSERT INTO categories(_id, cat_name, color) VALUES(1, 'Inbox', '#CCCCCC')");
 
     }
 

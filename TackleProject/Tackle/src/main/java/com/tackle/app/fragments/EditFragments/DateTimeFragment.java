@@ -16,11 +16,23 @@ import com.tackle.app.views.DateTimePicker;
  * Created by Bill on 1/15/14.
  */
 public class DateTimeFragment extends Fragment {
+
+    private long mStartTime;
+    private long mEndTime;
+    private int allDay;
+
+    DateTimePicker startDate;
+
+    private int type;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_fragment_datetime, container, false);
 
-        DateTimePicker timePicker = (DateTimePicker) view.findViewById(R.id.datepicker2);
+        //
+
+        DateTimePicker timePicker = (DateTimePicker) view.findViewById(R.id.enddate);
+
         timePicker.setFromTo("To");
         timePicker.setDate(System.currentTimeMillis());
         return view;

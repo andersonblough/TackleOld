@@ -1,7 +1,12 @@
 package com.tackle.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -13,16 +18,32 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.tackle.app.Dialogs.DatePickerFragment;
+import com.tackle.app.Dialogs.NumberPickerFragment;
 import com.tackle.app.adapters.EditPagerAdapter;
+import com.tackle.app.data.TackleContract;
+import com.tackle.app.fragments.EditFragments.DateTimeFragment;
+import com.tackle.app.fragments.EditFragments.ItemsFragment;
+import com.tackle.app.fragments.EditFragments.NotesFragment;
+import com.tackle.app.fragments.EditFragments.RemindersFragment;
+import com.tackle.app.fragments.EditFragments.ShareFragment;
 import com.tackle.app.views.DateTimePicker;
 
 /**
  * Created by Bill on 1/15/14.
  */
-public class EditActivity extends ActionBarActivity {
+public class EditActivity extends ActionBarActivity implements DatePickerFragment.UntilDateListener, NumberPickerFragment.CountChangedListener {
     private ViewPager mViewPager;
+    private EditPagerAdapter pagerAdapter;
     private GridView mPagerTabBar;
+
+    private DateTimeFragment mDateTimeFragment;
+    private RemindersFragment mRemindersFragment;
+    private NotesFragment mNotesFragment;
+    private ShareFragment mShareFragment;
+    private ItemsFragment mItemsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +51,30 @@ public class EditActivity extends ActionBarActivity {
         setContentView(R.layout.activity_edit);
         setUpActionBar();
 
+        if (savedInstanceState != null){
+            FragmentManager fm = getSupportFragmentManager();
+            mDateTimeFragment = (DateTimeFragment) fm.getFragment(savedInstanceState, DateTimeFragment.class.getName());
+            mRemindersFragment = (RemindersFragment) fm.getFragment(savedInstanceState, RemindersFragment.class.getName());
+            mNotesFragment = (NotesFragment) fm.getFragment(savedInstanceState, NotesFragment.class.getName());
+            mShareFragment = (ShareFragment) fm.getFragment(savedInstanceState, ShareFragment.class.getName());
+            mItemsFragment = (ItemsFragment) fm.getFragment(savedInstanceState, ItemsFragment.class.getName());
+        }
+        else {
+            mDateTimeFragment = new DateTimeFragment();
+            mRemindersFragment = new RemindersFragment();
+            mNotesFragment = new NotesFragment();
+            mShareFragment = new ShareFragment();
+            mItemsFragment = new ItemsFragment();
+        }
+
+        Fragment[] fragments = {mDateTimeFragment, mRemindersFragment, mNotesFragment, mShareFragment, mItemsFragment};
+
         mPagerTabBar = (GridView) findViewById(R.id.pager_tab_bar);
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mViewPager.setOffscreenPageLimit(4);
+        pagerAdapter = new EditPagerAdapter(getSupportFragmentManager(), fragments);
+        mViewPager.setAdapter(pagerAdapter);
 
-        mViewPager.setAdapter(new EditPagerAdapter(getSupportFragmentManager()));
         final PagerTabAdapter pagerTabAdapter = new PagerTabAdapter();
         mPagerTabBar.setAdapter(pagerTabAdapter);
         mPagerTabBar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,6 +103,17 @@ public class EditActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.putFragment(outState, DateTimeFragment.class.getName(), mDateTimeFragment);
+        fm.putFragment(outState, RemindersFragment.class.getName(), mRemindersFragment);
+        fm.putFragment(outState, NotesFragment.class.getName(), mNotesFragment);
+        fm.putFragment(outState, ShareFragment.class.getName(), mShareFragment);
+        fm.putFragment(outState, ItemsFragment.class.getName(), mItemsFragment);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
@@ -79,6 +131,19 @@ public class EditActivity extends ActionBarActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         //actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_bg));
 
+    }
+
+    @Override
+    public void onUntilDateChanged(long dateTime) {
+        if (dateTime != -1){
+            mRemindersFragment.setUntilDate(dateTime);
+        }
+
+    }
+
+    @Override
+    public void onCountChanged(int count) {
+        mRemindersFragment.setCountValue(count);
     }
 
     private class PagerTabAdapter extends BaseAdapter {

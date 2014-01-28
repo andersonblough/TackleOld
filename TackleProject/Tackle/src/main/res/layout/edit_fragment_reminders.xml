@@ -8,7 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:layout_margin="8dp"
         android:background="@drawable/bg_list_normal">
 
@@ -16,22 +15,82 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_gravity="center"
             android:text="Repeat"
             android:textSize="28dp"
             android:textColor="@color/Tackle_Green"
             android:fontFamily="sans-serif-light"/>
-
-        <com.tackle.app.views.RepeatPicker
-            android:id="@+id/repeatPicker"
+        
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"/>
+            android:layout_marginRight="8dp">
+            
+            <GridView
+                android:id="@+id/freq"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:choiceMode="singleChoice"
+                android:numColumns="4"/>
+            
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/frame"/>
+            
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/weekDays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp">
+
+            <GridView
+                android:id="@+id/weekGrid"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:choiceMode="multipleChoice"
+                android:numColumns="7"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/frame"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/until"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp">
+
+            <GridView
+                android:id="@+id/untilGrid"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:choiceMode="singleChoice"
+                android:numColumns="3"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/frame"/>
+
+        </RelativeLayout>
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
+            android:layout_gravity="center"
             android:text="Reminders"
             android:textSize="28dp"
             android:textColor="@color/Tackle_Green"

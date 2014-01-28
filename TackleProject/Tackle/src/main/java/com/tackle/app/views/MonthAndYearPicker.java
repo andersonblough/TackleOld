@@ -129,6 +129,7 @@ public class MonthAndYearPicker extends LinearLayout implements ViewSwitcher.Vie
         public View getView(int position, View convertView, ViewGroup parent) {
             TextView month = new TextView(getContext());
             month.setTextSize(28);
+            month.setTextColor(getResources().getColor(R.color.Tackle));
             month.setGravity(Gravity.CENTER);
             month.setPadding(8,12,8,12);
             month.setText(months[position]);

@@ -3,7 +3,6 @@ package com.tackle.app.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.tackle.app.fragments.EditFragments.DateTimeFragment;
 import com.tackle.app.fragments.EditFragments.ItemsFragment;
@@ -11,21 +10,19 @@ import com.tackle.app.fragments.EditFragments.NotesFragment;
 import com.tackle.app.fragments.EditFragments.RemindersFragment;
 import com.tackle.app.fragments.EditFragments.ShareFragment;
 
+import java.util.ArrayList;
+
 /**
  * Created by Bill on 1/15/14.
  */
-public class EditPagerAdapter extends FragmentStatePagerAdapter {
+public class EditPagerAdapter extends FragmentPagerAdapter {
 
     Fragment[] fragments;
 
-    public EditPagerAdapter(FragmentManager fm) {
+    public EditPagerAdapter(FragmentManager fm, Fragment[] fragments){
         super(fm);
-        fragments = new Fragment[5];
-        fragments[0] = new DateTimeFragment();
-        fragments[1] = new RemindersFragment();
-        fragments[2] = new NotesFragment();
-        fragments[3] = new ShareFragment();
-        fragments[4] = new ItemsFragment();
+        this.fragments = fragments;
+
     }
 
     @Override

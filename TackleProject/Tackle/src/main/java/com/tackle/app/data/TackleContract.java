@@ -125,8 +125,8 @@ public class TackleContract {
         public static final int INSTANCE_ID = 190;
 
         public static final String EVENT_ID = "event_id";
-        public static final String BEGIN_DATE = "begin";
-        public static final String END_DATE = "end";
+        public static final String BEGIN = "begin";
+        public static final String END = "end";
         public static final String START_DAY = "start_day";
         public static final String START_MINUTE = "start_min";
         public static final String END_DAY = "end_day";

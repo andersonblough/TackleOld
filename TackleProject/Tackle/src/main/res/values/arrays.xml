@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="frequencies" >
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Yearly</item>
+    </string-array>
+
     <string-array name="until" >
         <item>Forever</item>
-        <item>Until a date</item>
-        <item>Occurrences</item>
+        <item>Until</item>
+        <item>Count</item>
     </string-array>
 
     <array name="months">
@@ -63,6 +70,7 @@
         <item>People often say that motivation doesn\'t last. Well, neither does bathing. That\'s why we recommend it daily.</item>
         <item>It always seems impossible until it\'s done.</item>
         <item>Resolutions were made to be tackled.</item>
+        <item>If you can\’t fly then run, if you can\’t run then walk, if you can\’t walk then crawl, but whatever you do you have to keep moving forward.</item>
     </array>
 
     <array name="authors">
@@ -85,6 +93,7 @@
         <item>Zig Ziglar</item>
         <item>Nelson Mandela</item>
         <item>Tackle</item>
+        <item>Martin Luther King Jr.</item>
 
     </array>
 </resources>

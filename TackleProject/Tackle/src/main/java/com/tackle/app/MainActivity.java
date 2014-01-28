@@ -185,7 +185,7 @@ public class MainActivity extends ActionBarActivity
         super.onStop();
 
 
-        handler.removeCallbacks(runnable);
+        //handler.removeCallbacks(runnable);
     }
 
     private void initDate() {
@@ -504,7 +504,7 @@ public class MainActivity extends ActionBarActivity
 
             String locale = "lat=" + String.valueOf(latitude) + "&lon=" + String.valueOf(longitude);
 
-            Toast.makeText(getBaseContext(), "Run Started", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getBaseContext(), "Run Started", Toast.LENGTH_SHORT).show();
 
             JSONWeatherTask weatherTask = new JSONWeatherTask();
 

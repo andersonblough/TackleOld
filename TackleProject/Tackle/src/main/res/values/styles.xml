@@ -3,6 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.Base.AppCompat">
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:actionMenuTextColor">@android:color/white</item>
         <item name="android:actionOverflowButtonStyle">@style/MyOverFlowButton</item>
         <item name="android:homeAsUpIndicator">@drawable/up_indicator</item>
         <item name="android:actionBarStyle">@style/MyActionBarStyle</item>
@@ -33,6 +34,7 @@
     <style name="MyDropDownStyle" parent="Widget.AppCompat.Spinner.DropDown.ActionBar">
         <item name="android:dropDownSelector">@drawable/spinner_background</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_stylingactionbar</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="MyOverFlowButton" parent="Widget.AppCompat.ActionButton.Overflow">
