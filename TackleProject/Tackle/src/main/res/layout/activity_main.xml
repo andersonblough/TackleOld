@@ -49,15 +49,6 @@
             android:layout_width="match_parent"
             android:layout_alignBottom="@+id/month_image" />
 
-        <ListView
-            android:id="@+id/tackle_list"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:dividerHeight="2dp"
-            android:divider="@android:color/transparent"
-            android:layout_below="@+id/month_image"/>
 
         <RelativeLayout
             android:id="@+id/empty"
@@ -94,11 +85,17 @@
 
             </FrameLayout>
 
-
-
         </RelativeLayout>
 
-
+        <com.tackle.app.views.EnhancedListView
+            android:id="@+id/tackle_list"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:dividerHeight="2dp"
+            android:divider="@android:color/transparent"
+            android:layout_below="@+id/month_image"/>
 
         <View
             android:layout_height="6dp"

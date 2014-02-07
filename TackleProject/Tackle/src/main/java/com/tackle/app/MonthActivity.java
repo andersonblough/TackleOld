@@ -40,6 +40,7 @@ public class MonthActivity extends ActionBarActivity implements PickerDialog.Pic
         fragList = new CalendarFragment[3];
         Calendar curMonth = Calendar.getInstance();
         curMonth.setTimeInMillis(date);
+        curMonth.set(Calendar.DAY_OF_MONTH, 1);
         Calendar prevMonth, nextMonth;
         prevMonth = (Calendar) curMonth.clone();
         nextMonth = (Calendar) curMonth.clone();
@@ -49,6 +50,7 @@ public class MonthActivity extends ActionBarActivity implements PickerDialog.Pic
 
         prevMonth.set(Calendar.MONTH, prevMonth.get(Calendar.MONTH) - 1);
         nextMonth.set(Calendar.MONTH, nextMonth.get(Calendar.MONTH) + 1);
+
 
         fragList[0] = CalendarFragment.newInstance(prevMonth);
         fragList[1] = CalendarFragment.newInstance(curMonth);
@@ -86,6 +88,7 @@ public class MonthActivity extends ActionBarActivity implements PickerDialog.Pic
                     invalidateOptionsMenu();
                     fragList[0].updateUI();
                     fragList[2].updateUI();
+
                 }
 
             }
@@ -123,6 +126,7 @@ public class MonthActivity extends ActionBarActivity implements PickerDialog.Pic
         switch (item.getItemId()){
             case R.id.today:
                 Calendar curMonth = Calendar.getInstance();
+                curMonth.set(Calendar.DAY_OF_MONTH, 1);
                 Calendar prevMonth, nextMonth;
                 prevMonth = (Calendar) curMonth.clone();
                 nextMonth = (Calendar) curMonth.clone();
@@ -162,6 +166,7 @@ public class MonthActivity extends ActionBarActivity implements PickerDialog.Pic
     public void onPickerDateChanged(long dateTime) {
         Calendar curMonth = Calendar.getInstance();
         curMonth.setTimeInMillis(dateTime);
+        curMonth.set(Calendar.DAY_OF_MONTH, 1);
         Calendar prevMonth, nextMonth;
         prevMonth = (Calendar) curMonth.clone();
         nextMonth = (Calendar) curMonth.clone();

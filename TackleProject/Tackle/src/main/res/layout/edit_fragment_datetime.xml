@@ -29,9 +29,12 @@
         android:id="@+id/enddate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_margin="12dp"/>
 
     <CheckBox
+        android:id="@+id/all_day"
+        android:button="@drawable/checkbox_bg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"

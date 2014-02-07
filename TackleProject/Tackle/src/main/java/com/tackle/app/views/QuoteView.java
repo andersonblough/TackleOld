@@ -34,4 +34,9 @@ public class QuoteView extends RelativeLayout {
     public QuoteView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
+
+    public void setUp(String quote, String author){
+        this.quote.setText(quote);
+        this.author.setText("- " + author);
+    }
 }

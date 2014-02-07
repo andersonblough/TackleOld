@@ -3,6 +3,7 @@ package com.tackle.app.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import java.util.Locale;
 public class DateTimePicker extends LinearLayout {
 
     private TextView fromTo, month, day, year, time;
+    private LinearLayout dateLayout, timeLayout;
     private Calendar date;
     private OnClickListener mListener;
 
@@ -31,6 +33,25 @@ public class DateTimePicker extends LinearLayout {
         inflater.inflate(R.layout.datetime_picker_layout, this, true);
         date = Calendar.getInstance();
         initTextViews();
+        dateLayout = (LinearLayout) findViewById(R.id.datelayout);
+        timeLayout = (LinearLayout) findViewById(R.id.timelayout);
+
+        dateLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null){
+                    mListener.onDateClicked();
+                }
+            }
+        });
+        timeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null){
+                    mListener.onTimeClicked();
+                }
+            }
+        });
 
 
     }
@@ -51,19 +72,33 @@ public class DateTimePicker extends LinearLayout {
         time = (TextView) findViewById(R.id.time);
     }
 
-    public void setDate(long dateTime){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma");
+    public void setAllDay(){
+        time.setText("All Day");
+    }
 
+    public void setDate(long dateTime){
         date.setTimeInMillis(dateTime);
         // todo: fix the locale
         month.setText(date.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.US));
         day.setText(String.valueOf(date.get(Calendar.DAY_OF_MONTH)));
         year.setText(String.valueOf(date.get(Calendar.YEAR)));
+
+    }
+
+    public void setTime(long dateTime){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma");
+        date.setTimeInMillis(dateTime);
         time.setText(dateFormat.format(date.getTime()));
     }
 
+    public void setOnClickListener(OnClickListener listener){
+        mListener = listener;
+    }
+
     public interface OnClickListener{
-        public void onClick(int choice);
+        public void onDateClicked();
+
+        public void onTimeClicked();
     }
 
 }

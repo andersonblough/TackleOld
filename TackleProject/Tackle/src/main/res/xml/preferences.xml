@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="pref_key_whats_up"
+        android:summary="Small text goes here"
+        android:icon="@android:drawable/ic_dialog_dialer"
+        android:title="What's up" />
+
+    <PreferenceScreen
+        android:key="month_image_license"
+        android:title="Month Images">
+
+    </PreferenceScreen>
+
+</PreferenceScreen>

@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -17,7 +15,13 @@ import java.util.Calendar;
  */
 public class DatePickerFragment extends DialogFragment {
 
-    UntilDateListener mListener;
+    public static final String STARTDATE = "start";
+    public static final String ENDDATE = "end";
+    public static final String UNTILDATE = "until";
+
+    private Calendar c;
+
+    DateChangeListener mListener;
     long dateTime;
     int count;
 
@@ -34,18 +38,19 @@ public class DatePickerFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (UntilDateListener) activity;
+            mListener = (DateChangeListener) activity;
         } catch (ClassCastException e){
-            throw new ClassCastException(activity.toString() + " must implement UntilDateListener");
+            throw new ClassCastException(activity.toString() + " must implement DateChangeListener");
         }
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Calendar c = Calendar.getInstance();
         count = 1;
 
+        c = Calendar.getInstance();
         c.setTimeInMillis(dateTime);
+
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
@@ -54,11 +59,9 @@ public class DatePickerFragment extends DialogFragment {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 if (count == 1){
-                    Calendar c = Calendar.getInstance();
                     c.set(year, month, day);
 
-                    //Toast.makeText(getActivity(), String.valueOf(c.getTimeInMillis()), Toast.LENGTH_SHORT).show();
-                    mListener.onUntilDateChanged(c.getTimeInMillis());
+                    mListener.onDateChanged(c.getTimeInMillis(), getTag());
                     count++;
                 }
 
@@ -71,7 +74,7 @@ public class DatePickerFragment extends DialogFragment {
         return dialog;
     }
 
-    public interface UntilDateListener{
-        public void onUntilDateChanged(long dateTime);
+    public interface DateChangeListener {
+        public void onDateChanged(long dateTime, String tag);
     }
 }

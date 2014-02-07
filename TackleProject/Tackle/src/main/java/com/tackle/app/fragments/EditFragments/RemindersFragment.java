@@ -197,7 +197,7 @@ public class RemindersFragment extends Fragment {
                         break;
                     case 1:
                         DatePickerFragment dialog = new DatePickerFragment(untilDate);
-                        dialog.show(getFragmentManager(), "datePicker");
+                        dialog.show(getFragmentManager(), DatePickerFragment.UNTILDATE);
                         break;
                     case 2:
                         NumberPickerFragment numPicker = new NumberPickerFragment();

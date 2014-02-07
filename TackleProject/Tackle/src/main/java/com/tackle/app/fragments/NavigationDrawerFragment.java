@@ -1,6 +1,8 @@
 package com.tackle.app.fragments;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBarActivity;;
 import android.app.Activity;
@@ -22,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,7 +69,7 @@ public class NavigationDrawerFragment extends Fragment{
     private ListView mDrawerListView;
     private View mFragmentContainerView;
 
-    private int mCurrentSelectedPosition = 1;
+    private int mCurrentSelectedPosition;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
@@ -89,6 +92,9 @@ public class NavigationDrawerFragment extends Fragment{
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         }
+        else {
+            mCurrentSelectedPosition = 0;
+        }
 
         // Select either the default item (0) or the last selected item.
 
@@ -106,10 +112,29 @@ public class NavigationDrawerFragment extends Fragment{
         View header = inflater.inflate(R.layout.category_drawer_item, null);
         TextView headerTitle = (TextView) header.findViewById(R.id.category);
         headerTitle.setText("All");
+        headerTitle.setTextColor(Color.parseColor("#4c4c4e"));
         count = (TextView) header.findViewById(R.id.count);
         count.setTextColor(getResources().getColor(android.R.color.black));
 
+        View someday = inflater.inflate(R.layout.category_drawer_item, null);
+        TextView somedayTitle = (TextView) someday.findViewById(R.id.category);
+        somedayTitle.setTextColor(Color.parseColor("#4c4c4e"));
+        somedayTitle.setText("Someday");
+        TextView somedayCount = (TextView) someday.findViewById(R.id.count);
+        somedayCount.setTextColor(getResources().getColor(R.color.black));
+
+        View overdue = inflater.inflate(R.layout.category_drawer_item, null);
+        TextView overdueText = (TextView) overdue.findViewById(R.id.category);
+        overdueText.setText("Past Due");
+        overdueText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+        TextView overdueCount = (TextView) overdue.findViewById(R.id.count);
+        overdueCount.setTextColor(getResources().getColor(R.color.black));
+        //ImageView overdueColor = (ImageView) overdue.findViewById(R.id.cat_color);
+        //overdueColor.setColorFilter(Color.parseColor("#ff4000"), PorterDuff.Mode.SRC_ATOP);
+
         mDrawerListView.addHeaderView(header);
+        mDrawerListView.addHeaderView(someday);
+        mDrawerListView.addHeaderView(overdue);
 
         mDrawerListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         mDrawerAdapter = new CategoryDrawerAdapter(getActivity(), null, false);
@@ -124,7 +149,7 @@ public class NavigationDrawerFragment extends Fragment{
         mDrawerListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0 || position == 1){
+                if (position < 4){
                     return false;
                 }
                 DialogFragment deleteDialog = new DeleteDialog(id);
@@ -132,7 +157,14 @@ public class NavigationDrawerFragment extends Fragment{
                 return true;
             }
         });
+
+        mDrawerListView.setSelection(mCurrentSelectedPosition);
         return mFragmentContainerView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     public boolean isDrawerOpen() {
@@ -150,6 +182,7 @@ public class NavigationDrawerFragment extends Fragment{
         mDrawerLayout = drawerLayout;
 
         selectItem(mCurrentSelectedPosition, id);
+        //Toast.makeText(getActivity(), String.valueOf(mCurrentSelectedPosition), Toast.LENGTH_SHORT).show();
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -273,12 +306,6 @@ public class NavigationDrawerFragment extends Fragment{
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
-        //switch (item.getItemId()) {
-        //   case R.id.action_example:
-        //        Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
-        //        return true;
-        //}
 
         return super.onOptionsItemSelected(item);
     }

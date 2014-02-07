@@ -9,7 +9,7 @@
         android:id="@+id/from_to"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="From"
+        android:text=""
         android:textColor="@color/Tackle"/>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,7 +18,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/date"
+        android:id="@+id/datelayout"
         android:layout_width="0dp"
         android:layout_weight="2"
         android:layout_height="match_parent"

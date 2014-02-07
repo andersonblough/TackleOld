@@ -1,12 +1,8 @@
 package com.tackle.app;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -18,23 +14,21 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.tackle.app.Dialogs.DatePickerFragment;
 import com.tackle.app.Dialogs.NumberPickerFragment;
+import com.tackle.app.Dialogs.TimePickerFragment;
 import com.tackle.app.adapters.EditPagerAdapter;
-import com.tackle.app.data.TackleContract;
 import com.tackle.app.fragments.EditFragments.DateTimeFragment;
 import com.tackle.app.fragments.EditFragments.ItemsFragment;
 import com.tackle.app.fragments.EditFragments.NotesFragment;
 import com.tackle.app.fragments.EditFragments.RemindersFragment;
 import com.tackle.app.fragments.EditFragments.ShareFragment;
-import com.tackle.app.views.DateTimePicker;
 
 /**
  * Created by Bill on 1/15/14.
  */
-public class EditActivity extends ActionBarActivity implements DatePickerFragment.UntilDateListener, NumberPickerFragment.CountChangedListener {
+public class EditActivity extends ActionBarActivity implements DatePickerFragment.DateChangeListener, NumberPickerFragment.CountChangedListener, TimePickerFragment.TimeChangeListener {
     private ViewPager mViewPager;
     private EditPagerAdapter pagerAdapter;
     private GridView mPagerTabBar;
@@ -134,16 +128,35 @@ public class EditActivity extends ActionBarActivity implements DatePickerFragmen
     }
 
     @Override
-    public void onUntilDateChanged(long dateTime) {
-        if (dateTime != -1){
-            mRemindersFragment.setUntilDate(dateTime);
+    public void onDateChanged(long dateTime, String tag) {
+        if (tag.equals(DatePickerFragment.UNTILDATE)){
+            if (dateTime != -1){
+                mRemindersFragment.setUntilDate(dateTime);
+            }
         }
+        else if (tag.equals(DatePickerFragment.STARTDATE)){
+            mDateTimeFragment.setStartDate(dateTime);
+        }
+        else if (tag.equals(DatePickerFragment.ENDDATE)){
+            mDateTimeFragment.setEndDate(dateTime);
+        }
+
 
     }
 
     @Override
     public void onCountChanged(int count) {
         mRemindersFragment.setCountValue(count);
+    }
+
+    @Override
+    public void onTimeChanged(long dateTime, String tag) {
+        if (tag.equals(TimePickerFragment.STARTTIME)){
+            mDateTimeFragment.setStartTime(dateTime);
+        }
+        else if (tag.equals(TimePickerFragment.ENDTIME)){
+            mDateTimeFragment.setEndTime(dateTime);
+        }
     }
 
     private class PagerTabAdapter extends BaseAdapter {

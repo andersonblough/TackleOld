@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.tackle.app.MainActivity;
 import com.tackle.app.R;
 import com.tackle.app.data.TackleContract;
 import com.tackle.app.data.TackleEvent;
@@ -26,11 +28,13 @@ import java.util.Date;
  */
 public class TackleListAdapter extends CursorAdapter {
     LayoutInflater inflater;
+    MainActivity.TackleItemCallback mCallBack;
 
 
-    public TackleListAdapter(Context context, Cursor c, boolean autoRequery) {
+    public TackleListAdapter(Context context, Cursor c, boolean autoRequery, MainActivity.TackleItemCallback callback) {
         super(context, c, autoRequery);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mCallBack = callback;
     }
 
     @Override
@@ -42,6 +46,7 @@ public class TackleListAdapter extends CursorAdapter {
                 customListView = inflater.inflate(R.layout.list_layout_todo, parent, false);
                 TodoHolder todoHolder = new TodoHolder();
                 todoHolder.typeIcon = (ImageView) customListView.findViewById(R.id.type_icon);
+                todoHolder.check = (ImageView) customListView.findViewById(R.id.type_check);
                 todoHolder.category = (TextView) customListView.findViewById(R.id.category);
                 todoHolder.title = (TextView) customListView.findViewById(R.id.title);
                 todoHolder.date = (TextView) customListView.findViewById(R.id.date);
@@ -81,7 +86,7 @@ public class TackleListAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
         int type = cursor.getInt(cursor.getColumnIndex(TackleContract.TackleEvent.TYPE));
 
         Cursor categoryCursor = getCategoryCursor(context, cursor);
@@ -94,10 +99,20 @@ public class TackleListAdapter extends CursorAdapter {
 
         switch (type){
             case TackleEvent.Type.TODO:
-                TodoHolder holder = (TodoHolder) view.getTag();
+                final int position = cursor.getPosition();
+                final TodoHolder holder = (TodoHolder) view.getTag();
+                holder.check.setVisibility(View.GONE);
                 holder.category.setText(categoryText);
                 holder.category.setTextColor(fill);
                 holder.typeIcon.setColorFilter(colorFilter);
+                holder.typeIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.check.setVisibility(View.VISIBLE);
+                        //Toast.makeText(context, String.valueOf(position), Toast.LENGTH_SHORT).show();
+                        mCallBack.onItemTackled(position);
+                    }
+                });
                 holder.title.setText(cursor.getString(cursor.getColumnIndex(TackleContract.TackleEvent.NAME)));
                 holder.date.setText(getDate(cursor));
                 break;
@@ -140,12 +155,12 @@ public class TackleListAdapter extends CursorAdapter {
     @Override
     public int getItemViewType(int position) {
         Cursor cursor = (Cursor) getItem(position);
-        return cursor.getInt(cursor.getColumnIndex(TackleContract.TackleEvent.TYPE)) - 1;
+        return cursor.getInt(cursor.getColumnIndex(TackleContract.TackleEvent.TYPE));
     }
 
     @Override
     public int getViewTypeCount() {
-        return 4;
+        return 5;
     }
 
     private int getListItemCount(Context context, Cursor cursor){
@@ -189,6 +204,7 @@ public class TackleListAdapter extends CursorAdapter {
 
     public static class TodoHolder{
         public ImageView typeIcon;
+        public ImageView check;
         public TextView title;
         public TextView category;
         public TextView date;

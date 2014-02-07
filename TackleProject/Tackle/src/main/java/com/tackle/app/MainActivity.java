@@ -1,6 +1,7 @@
 package com.tackle.app;
 
 import android.app.FragmentManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -17,13 +18,20 @@ import android.support.v4.content.CursorLoader;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
+import android.view.ViewPropertyAnimator;
+import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,16 +43,17 @@ import com.tackle.app.Weather.WeatherHTTPClient;
 import com.tackle.app.adapters.TackleListAdapter;
 import com.tackle.app.data.TackleContract;
 import com.tackle.app.data.TackleEvent;
-import com.tackle.app.fragments.DateHeaderFragment;
-import com.tackle.app.fragments.DayHeaderFragment;
 import com.tackle.app.fragments.DayViewFragment;
 import com.tackle.app.fragments.NavigationDrawerFragment;
 import com.tackle.app.fragments.WeekViewFragment;
+import com.tackle.app.views.CursorWithDelete;
+import com.tackle.app.views.EnhancedListView;
 import com.tackle.app.views.QuoteView;
 
 import org.json.JSONException;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
@@ -61,8 +70,6 @@ public class MainActivity extends ActionBarActivity
     private static final int CATEGORY_LOADER = 100;
     private static final int TACKLE_ITEMS_LOADER = 110;
 
-    private QuoteView quoteView;
-
     public static final String WEEK_VIEW = "week view";
     public static final String DAY_VIEW = "day view";
 
@@ -77,14 +84,20 @@ public class MainActivity extends ActionBarActivity
     private DayViewFragment mDayViewFragment;
 
     private TackleListAdapter mTackleListAdapter;
-
-    private DateHeaderFragment dateHeaderFragment;
-    private DayHeaderFragment dayHeaderFragment;
     public int mViewState;
     public long mSelectedDay;
     private long mTempDate;
     private long mCategory;
     private int[] weatherIds;
+
+    private Cursor currentCursor;
+
+    private EnhancedListView listView;
+
+    private FragmentManager fragmentManager;
+
+    HashMap<Long, Integer> mItemIdTopMap = new HashMap<Long, Integer>();
+
 
 
     /**
@@ -97,21 +110,7 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1){
-            if (resultCode == RESULT_OK){
-                setDate(data.getLongExtra("result", 1));
-                mTempDate = mSelectedDay;
-                FragmentManager manager = getFragmentManager();
-                manager.beginTransaction().setCustomAnimations(R.animator.card_flip_left_in, R.animator.card_flip_left_out)
-                        .show(mDayViewFragment).hide(mWeekViewFragment).commit();
-                setViewState(VIEW_STATE_DAY);
-            }
-        }
 
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +118,11 @@ public class MainActivity extends ActionBarActivity
         setUpActionBar();
         setContentView(R.layout.activity_main);
 
+        //initialize the fragmentManager
+        fragmentManager = getFragmentManager();
+
+
+        // check if the view is being restored and set up values
         if (savedInstanceState != null){
             mSelectedDay = savedInstanceState.getLong("selectedDay");
             mTempDate = savedInstanceState.getLong("tempDate");
@@ -126,38 +130,54 @@ public class MainActivity extends ActionBarActivity
             mViewState = savedInstanceState.getInt("viewState");
             weatherIds = savedInstanceState.getIntArray("weather");
 
+            mWeekViewFragment = (WeekViewFragment) fragmentManager.getFragment(savedInstanceState, WeekViewFragment.class.getName());
+            mDayViewFragment = (DayViewFragment) fragmentManager.getFragment(savedInstanceState, DayViewFragment.class.getName());
+
         }
         else {
             mSelectedDay = System.currentTimeMillis();
             mViewState = VIEW_STATE_WEEK;
             mCategory = -1;
+            weatherIds = null;
+            mDayViewFragment= new DayViewFragment();
+            mWeekViewFragment = new WeekViewFragment();
+
+            fragmentManager.beginTransaction().add(R.id.container_day, mDayViewFragment)
+                                              .add(R.id.container_week, mWeekViewFragment)
+                                              .commit();
             runnable.run();
         }
 
-        // set the date as the current date
-        //setDate(System.currentTimeMillis());
-        // add the fragments to the current view
-        setUpMonthImage(mSelectedDay);
-
-        setUpDateHeader(savedInstanceState);
-
-        getSupportLoaderManager().initLoader(CATEGORY_LOADER, null, this);
-        getSupportLoaderManager().initLoader(TACKLE_ITEMS_LOADER, null, this);
-
+        //set up UI elements so they can be worked with
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle(mCategory);
 
-        // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout), mCategory);
 
+        listView = (EnhancedListView) findViewById(R.id.tackle_list);
+
+
+        setUpMonthImage(mSelectedDay);
+
+        getSupportLoaderManager().initLoader(CATEGORY_LOADER, null, this);
+        getSupportLoaderManager().initLoader(TACKLE_ITEMS_LOADER, null, this);
+
+
+        mTitle = getTitle(mCategory);
+
+        // Set up the drawer.
+
         setUpQuote();
 
-        ListView listView = (ListView) findViewById(R.id.tackle_list);
-
-        mTackleListAdapter = new TackleListAdapter(this, null, false);
+        mTackleListAdapter = new TackleListAdapter(this, null, false, new TackleItemCallback() {
+            @Override
+            public void onItemTackled(int position) {
+                listView.discardUndo();
+                listView.delete(position + 1);
+            }
+        });
         listView.setAdapter(mTackleListAdapter);
 
         View emptyView = findViewById(R.id.empty);
@@ -171,13 +191,126 @@ public class MainActivity extends ActionBarActivity
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, final View view, int position, long id) {
+
                 Intent intent = new Intent(getApplicationContext(), EditActivity.class);
                 startActivityForResult(intent, 2);
                 overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
             }
         });
 
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    listView.discardUndo();
+                }
+                return false;
+            }
+        });
+
+        registerForContextMenu(listView);
+
+        listView.setDismissCallback(new EnhancedListView.OnDismissCallback() {
+            @Override
+            public EnhancedListView.Undoable onDismiss(EnhancedListView listView, final int position) {
+                long id = listView.getItemIdAtPosition(position);
+                final Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, id);
+
+                CursorWithDelete cursorWithDelete = new CursorWithDelete(currentCursor, position - 1);
+                mTackleListAdapter.swapCursor(cursorWithDelete);
+
+                return new EnhancedListView.Undoable() {
+                    @Override
+                    public void undo() {
+                        mTackleListAdapter.swapCursor(currentCursor);
+                    }
+
+                    @Override
+                    public String getTitle() {
+                        return "Item Tackled";
+                    }
+
+                    @Override
+                    public void discard() {
+                        super.discard();
+                        getContentResolver().delete(uri, null, null);
+                    }
+                };
+            }
+        }).setSwipeDirection(EnhancedListView.SwipeDirection.END).setRequireTouchBeforeDismiss(false).setUndoHideDelay(2000);
+
+    }
+
+    public interface TackleItemCallback{
+        public void onItemTackled(int position);
+    }
+
+    private void animateRemoval(final ListView listview, View viewToRemove) {
+        int firstVisiblePosition = listview.getFirstVisiblePosition();
+        for (int i = 0; i < listview.getChildCount(); ++i) {
+            View child = listview.getChildAt(i);
+            if (child != viewToRemove) {
+                int position = firstVisiblePosition + i;
+                long itemId = mTackleListAdapter.getItemId(position);
+                mItemIdTopMap.put(itemId, child.getTop());
+            }
+        }
+        // Delete the item from the adapter
+        int position = listView.getPositionForView(viewToRemove);
+        listView.delete(position);
+
+        final ViewTreeObserver observer = listview.getViewTreeObserver();
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            public boolean onPreDraw() {
+                observer.removeOnPreDrawListener(this);
+                boolean firstAnimation = true;
+                int firstVisiblePosition = listview.getFirstVisiblePosition();
+                for (int i = 0; i < listview.getChildCount(); ++i) {
+                    final View child = listview.getChildAt(i);
+                    int position = firstVisiblePosition + i;
+                    long itemId = mTackleListAdapter.getItemId(position);
+                    Integer startTop = mItemIdTopMap.get(itemId);
+                    int top = child.getTop();
+                    if (startTop != null) {
+                        if (startTop != top) {
+                            int delta = startTop - top;
+                            child.setTranslationY(delta);
+                            child.animate().setDuration(300).translationY(0).setInterpolator(new DecelerateInterpolator());
+                            if (firstAnimation) {
+                                child.animate().withEndAction(new Runnable() {
+                                    public void run() {
+                                        //mBackgroundContainer.hideBackground();
+                                        listView.setEnabled(true);
+                                    }
+                                });
+                                firstAnimation = false;
+                            }
+                        }
+                    } else {
+                        // Animate new views along with the others. The catch is that they did not
+                        // exist in the start state, so we must calculate their starting position
+                        // based on neighboring views.
+                        int childHeight = child.getHeight() + listview.getDividerHeight();
+                        startTop = top + (i > 0 ? childHeight : -childHeight);
+                        int delta = startTop - top;
+                        child.setTranslationY(delta);
+                        child.animate().setDuration(300).translationY(0).setInterpolator(new DecelerateInterpolator());
+                        if (firstAnimation) {
+                            child.animate().withEndAction(new Runnable() {
+                                public void run() {
+                                    //mBackgroundContainer.hideBackground();
+                                    listView.setEnabled(true);
+                                }
+                            });
+                            firstAnimation = false;
+                        }
+                    }
+                }
+                mItemIdTopMap.clear();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -199,9 +332,8 @@ public class MainActivity extends ActionBarActivity
         Random r = new Random();
         int position = r.nextInt(quotes.length);
 
-        quoteView = (QuoteView) findViewById(R.id.quotes);
-        quoteView.quote.setText(quotes[position]);
-        quoteView.author.setText("- " + authors[position]);
+        QuoteView quoteView = (QuoteView) findViewById(R.id.quotes);
+        quoteView.setUp(quotes[position], authors[position]);
     }
 
     @Override
@@ -225,6 +357,10 @@ public class MainActivity extends ActionBarActivity
         outState.putLong("category", mCategory);
         outState.putIntArray("weather", weatherIds);
 
+        FragmentManager fm = getFragmentManager();
+        fm.putFragment(outState, WeekViewFragment.class.getName(), mWeekViewFragment);
+        fm.putFragment(outState, DayViewFragment.class.getName(), mDayViewFragment);
+
 
     }
 
@@ -240,25 +376,9 @@ public class MainActivity extends ActionBarActivity
                     .hide(mDayViewFragment).commit();
 
         }
-    }
 
-    private void setUpDateHeader(Bundle savedInstanceState) {
-        mDayViewFragment = new DayViewFragment();
-        mWeekViewFragment = new WeekViewFragment();
-
-        FragmentManager manager = getFragmentManager();
-        if (savedInstanceState == null){
-            manager.beginTransaction().add(R.id.container_week, mWeekViewFragment).hide(mWeekViewFragment).commit();
-            manager.beginTransaction().add(R.id.container_day, mDayViewFragment).hide(mDayViewFragment).commit();
-            if (weatherIds != null){
-                mWeekViewFragment.setWeather(weatherIds);
-                mDayViewFragment.setWeather(weatherIds);
-            }
-        }
-        else {
-            manager.beginTransaction().replace(R.id.container_week, mWeekViewFragment).hide(mWeekViewFragment).commit();
-            manager.beginTransaction().replace(R.id.container_day, mDayViewFragment).hide(mDayViewFragment).commit();
-        }
+        mWeekViewFragment.setWeather(weatherIds);
+        mDayViewFragment.setWeather(weatherIds);
     }
 
     private void setUpActionBar() {
@@ -354,6 +474,27 @@ public class MainActivity extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()){
+            case R.id.delete:
+                Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, info.id);
+                getContentResolver().delete(uri, null, null);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+
+    }
+
     private void addTackleItem(int type) {
 
         Intent intent = new Intent(this, AddActivity.class);
@@ -432,6 +573,22 @@ public class MainActivity extends ActionBarActivity
     private void setViewState(int viewState) {
       mViewState = viewState;
       getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1){
+            if (resultCode == RESULT_OK){
+                setDate(data.getLongExtra("result", 1));
+                mTempDate = mSelectedDay;
+                FragmentManager manager = getFragmentManager();
+                manager.beginTransaction().setCustomAnimations(R.animator.card_flip_left_in, R.animator.card_flip_left_out)
+                        .show(mDayViewFragment).hide(mWeekViewFragment).commit();
+                setViewState(VIEW_STATE_DAY);
+            }
+        }
+
+
     }
 
     /**
@@ -589,6 +746,7 @@ public class MainActivity extends ActionBarActivity
                 mNavigationDrawerFragment.mDrawerAdapter.swapCursor(cursor);
                 break;
             case TACKLE_ITEMS_LOADER:
+                currentCursor = cursor;
                 mTackleListAdapter.swapCursor(cursor);
                 mNavigationDrawerFragment.mDrawerAdapter.setDateTime(mSelectedDay);
                 mNavigationDrawerFragment.mDrawerAdapter.setViewState(mViewState);
@@ -641,6 +799,10 @@ public class MainActivity extends ActionBarActivity
                 mNavigationDrawerFragment.mDrawerAdapter.swapCursor(null);
                 break;
             case TACKLE_ITEMS_LOADER:
+                if (currentCursor != null){
+                    currentCursor.close();
+                    currentCursor = null;
+                }
                 mTackleListAdapter.swapCursor(null);
                 break;
         }
