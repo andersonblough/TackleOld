@@ -1,5 +1,5 @@
 <component name="libraryTable">
-  <library name="Gradle: ComAndroidSupportGridlayoutV71800.aar">
+  <library name="gridlayout-v7-18.0.0">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/Tackle/build/exploded-bundles/ComAndroidSupportGridlayoutV71800.aar/classes.jar!/" />
       <root url="file://$PROJECT_DIR$/Tackle/build/exploded-bundles/ComAndroidSupportGridlayoutV71800.aar/res" />

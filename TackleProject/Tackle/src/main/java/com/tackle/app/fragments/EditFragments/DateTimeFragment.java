@@ -1,5 +1,6 @@
 package com.tackle.app.fragments.EditFragments;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import com.tackle.app.Dialogs.DatePickerFragment;
 import com.tackle.app.Dialogs.TimePickerFragment;
 import com.tackle.app.EditActivity;
 import com.tackle.app.R;
+import com.tackle.app.data.TackleContract;
 import com.tackle.app.data.TackleEvent;
 import com.tackle.app.views.DateTimePicker;
 
@@ -32,12 +34,18 @@ public class DateTimeFragment extends Fragment {
     private long mEndTime;
     private int allDay;
 
+    private Cursor mCursor;
+
     DateTimePicker startDate;
     DateTimePicker endDate;
     CheckBox allDayBox;
 
     private int type;
 
+    public DateTimeFragment(Cursor cursor){
+        super();
+        mCursor = cursor;
+    }
 
 
     @Override
@@ -53,9 +61,10 @@ public class DateTimeFragment extends Fragment {
         }
         else {
             // set up values from data
-            type = TackleEvent.Type.TODO;
-            mStartTime = System.currentTimeMillis();
-            mEndTime = System.currentTimeMillis();
+            mCursor.moveToFirst();
+            type = mCursor.getInt(mCursor.getColumnIndex(TackleContract.TackleEvent.TYPE));
+            mStartTime = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent.START_DATE));
+            mEndTime = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent.END_DATE));
             allDay = 0;
         }
 

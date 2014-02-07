@@ -1,5 +1,8 @@
 package com.tackle.app;
 
+import android.content.ContentUris;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,11 +17,13 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.tackle.app.Dialogs.DatePickerFragment;
 import com.tackle.app.Dialogs.NumberPickerFragment;
 import com.tackle.app.Dialogs.TimePickerFragment;
 import com.tackle.app.adapters.EditPagerAdapter;
+import com.tackle.app.data.TackleContract;
 import com.tackle.app.fragments.EditFragments.DateTimeFragment;
 import com.tackle.app.fragments.EditFragments.ItemsFragment;
 import com.tackle.app.fragments.EditFragments.NotesFragment;
@@ -33,6 +38,8 @@ public class EditActivity extends ActionBarActivity implements DatePickerFragmen
     private EditPagerAdapter pagerAdapter;
     private GridView mPagerTabBar;
 
+    private Cursor mCursor;
+
     private DateTimeFragment mDateTimeFragment;
     private RemindersFragment mRemindersFragment;
     private NotesFragment mNotesFragment;
@@ -43,6 +50,7 @@ public class EditActivity extends ActionBarActivity implements DatePickerFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
+        setUpCursor();
         setUpActionBar();
 
         if (savedInstanceState != null){
@@ -54,7 +62,7 @@ public class EditActivity extends ActionBarActivity implements DatePickerFragmen
             mItemsFragment = (ItemsFragment) fm.getFragment(savedInstanceState, ItemsFragment.class.getName());
         }
         else {
-            mDateTimeFragment = new DateTimeFragment();
+            mDateTimeFragment = new DateTimeFragment(mCursor);
             mRemindersFragment = new RemindersFragment();
             mNotesFragment = new NotesFragment();
             mShareFragment = new ShareFragment();
@@ -125,6 +133,14 @@ public class EditActivity extends ActionBarActivity implements DatePickerFragmen
         actionBar.setDisplayHomeAsUpEnabled(true);
         //actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.action_bar_bg));
 
+    }
+
+    private void setUpCursor(){
+        long id = getIntent().getLongExtra("id", 0);
+        if (id > 0){
+            Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, id);
+            mCursor = getContentResolver().query(uri, null, null, null, null);
+        }
     }
 
     @Override

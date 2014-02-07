@@ -194,6 +194,7 @@ public class MainActivity extends ActionBarActivity
             public void onItemClick(AdapterView<?> adapterView, final View view, int position, long id) {
 
                 Intent intent = new Intent(getApplicationContext(), EditActivity.class);
+                intent.putExtra("id", id);
                 startActivityForResult(intent, 2);
                 overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
             }
