@@ -55,6 +55,8 @@ public class AddActivity extends ActionBarActivity {
                     values.put(TackleContract.TackleEvent.CATEGORY_ID, mCategory);
                     values.put(TackleContract.TackleEvent.START_DATE, mDate);
                     values.put(TackleContract.TackleEvent.TYPE, mType);
+                    values.put(TackleContract.TackleEvent.ALL_DAY, 0);
+
                     getContentResolver().insert(TackleContract.TackleEvent.CONTENT_URI, values);
 
                     finish();

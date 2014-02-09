@@ -599,7 +599,7 @@ public class EnhancedListView extends ListView {
         }
 
         view.animate()
-                .translationX(toRightSide ? view.getWidth() : -view.getWidth())
+                .translationX(toRightSide ? 0 : 0)
                 .alpha(0)
                 .setDuration(500)
                 .setListener(new android.animation.AnimatorListenerAdapter() {

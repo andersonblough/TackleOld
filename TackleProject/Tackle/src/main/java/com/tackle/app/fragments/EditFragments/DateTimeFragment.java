@@ -65,7 +65,7 @@ public class DateTimeFragment extends Fragment {
             type = mCursor.getInt(mCursor.getColumnIndex(TackleContract.TackleEvent.TYPE));
             mStartTime = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent.START_DATE));
             mEndTime = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent.END_DATE));
-            allDay = 0;
+            allDay = mCursor.getInt(mCursor.getColumnIndex(TackleContract.TackleEvent.ALL_DAY));
         }
 
     }

@@ -21,6 +21,7 @@
         android:fontFamily="sans-serif-light"/>
 
     <LinearLayout
+        android:id="@+id/category_picker"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:orientation="vertical"
@@ -30,8 +31,10 @@
         android:background="@drawable/selector_rounded_rect_lighter"
         android:clickable="true">
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/category_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:text="Inbox"
             android:textColor="#CCCCCC"
             android:textSize="22dp"/>

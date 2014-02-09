@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.tackle.app.Dialogs.CategoryPickerDialog;
 import com.tackle.app.Dialogs.DatePickerFragment;
 import com.tackle.app.Dialogs.NumberPickerFragment;
 import com.tackle.app.Dialogs.TimePickerFragment;
@@ -33,7 +34,7 @@ import com.tackle.app.fragments.EditFragments.ShareFragment;
 /**
  * Created by Bill on 1/15/14.
  */
-public class EditActivity extends ActionBarActivity implements DatePickerFragment.DateChangeListener, NumberPickerFragment.CountChangedListener, TimePickerFragment.TimeChangeListener {
+public class EditActivity extends ActionBarActivity implements DatePickerFragment.DateChangeListener, NumberPickerFragment.CountChangedListener, TimePickerFragment.TimeChangeListener, CategoryPickerDialog.CategorySelectedListener {
     private ViewPager mViewPager;
     private EditPagerAdapter pagerAdapter;
     private GridView mPagerTabBar;
@@ -173,6 +174,11 @@ public class EditActivity extends ActionBarActivity implements DatePickerFragmen
         else if (tag.equals(TimePickerFragment.ENDTIME)){
             mDateTimeFragment.setEndTime(dateTime);
         }
+    }
+
+    @Override
+    public void onCategorySelected(long id) {
+        mNotesFragment.setCategory(id);
     }
 
     private class PagerTabAdapter extends BaseAdapter {
