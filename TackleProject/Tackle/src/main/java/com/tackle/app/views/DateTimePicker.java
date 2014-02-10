@@ -91,6 +91,10 @@ public class DateTimePicker extends LinearLayout {
         time.setText(dateFormat.format(date.getTime()));
     }
 
+    public void hideLabel(){
+        fromTo.setVisibility(View.GONE);
+    }
+
     public void setOnClickListener(OnClickListener listener){
         mListener = listener;
     }

@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 /**
  * Created by Bill on 12/15/13.
@@ -130,6 +131,7 @@ public class TackleProvider extends ContentProvider {
                     getContext().getContentResolver().notifyChange(rowUri, null);
                     return rowUri;
                 }
+                throw new SQLException("Failed to insert row into " + uri);
             case TackleContract.ListItems.LIST_ITEMS:
                 rowID = db.insert(TackleContract.ListItems.TABLE_NAME, null, values);
                 if (rowID > 0){
@@ -137,8 +139,10 @@ public class TackleProvider extends ContentProvider {
                     getContext().getContentResolver().notifyChange(rowUri, null);
                     return rowUri;
                 }
+                throw new SQLException("Failed to insert row into " + uri);
             case TackleContract.Reminders.REMINDERS:
                 rowID = db.insert(TackleContract.Reminders.TABLE_NAME, null, values);
+
                 if (rowID > 0){
                     rowUri = ContentUris.withAppendedId(TackleContract.Reminders.CONTENT_URI, rowID);
                     getContext().getContentResolver().notifyChange(rowUri, null);

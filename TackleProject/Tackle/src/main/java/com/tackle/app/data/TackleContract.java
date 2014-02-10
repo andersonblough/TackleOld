@@ -84,8 +84,7 @@ public class TackleContract {
 
         public static final String ID = "_id";
         public static final String EVENT_ID = "event_id";
-        public static final String TIMEZONE = "timezone";
-        public static final String DATE_TIME = "dateTime";
+        public static final String MINUTES = "minutes";
 
     }
 

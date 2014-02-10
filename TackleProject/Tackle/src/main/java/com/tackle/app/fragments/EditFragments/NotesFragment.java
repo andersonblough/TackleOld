@@ -6,9 +6,11 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,25 +23,66 @@ import com.tackle.app.data.TackleContract;
  */
 public class NotesFragment extends Fragment {
 
-    LinearLayout categoryLayout;
-    TextView categoryText;
+    private Cursor mCursor;
 
+    private TextView categoryText;
+    private EditText notesText;
+
+    private String notes;
     private long catID;
+
+    public NotesFragment(){}
+
+    public NotesFragment(Cursor cursor){
+        super();
+        mCursor = cursor;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null){
+            notes = savedInstanceState.getString("notes");
+            catID = savedInstanceState.getLong("id");
+        }
+        else {
+            mCursor.moveToFirst();
+            notes = mCursor.getString(mCursor.getColumnIndex(TackleContract.TackleEvent.NOTES));
+            catID = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent.CATEGORY_ID));
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_fragment_notes, container, false);
 
-        categoryLayout = (LinearLayout) view.findViewById(R.id.category_picker);
+        //Set up view
         categoryText = (TextView) view.findViewById(R.id.category_text);
-        categoryLayout.setOnClickListener(new View.OnClickListener() {
+        notesText = (EditText) view.findViewById(R.id.note_text);
+
+
+        categoryText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CategoryPickerDialog picker = new CategoryPickerDialog();
                 picker.show(getFragmentManager(), "picker");
             }
         });
+
+        //set up values
+        setCategory(catID);
+        if (!TextUtils.isEmpty(notes)){
+            notesText.setText(notes);
+        }
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("notes", notes);
+        outState.putLong("id", catID);
     }
 
     public void setCategory(long id){

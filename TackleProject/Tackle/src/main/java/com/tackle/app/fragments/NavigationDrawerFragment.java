@@ -1,8 +1,6 @@
 package com.tackle.app.fragments;
 
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBarActivity;;
 import android.app.Activity;
@@ -23,19 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.tackle.app.AddActivity;
-import com.tackle.app.Dialogs.ColorPickerDialog;
-import com.tackle.app.Dialogs.DeleteDialog;
-import com.tackle.app.MainActivity;
+import com.tackle.app.Dialogs.DeleteCategoryDialog;
 import com.tackle.app.R;
 import com.tackle.app.adapters.CategoryDrawerAdapter;
-import com.tackle.app.data.TackleContract;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -152,7 +143,7 @@ public class NavigationDrawerFragment extends Fragment{
                 if (position < 4){
                     return false;
                 }
-                DialogFragment deleteDialog = new DeleteDialog(id);
+                DialogFragment deleteDialog = new DeleteCategoryDialog(id);
                 deleteDialog.show(getFragmentManager(), "Delete");
                 return true;
             }

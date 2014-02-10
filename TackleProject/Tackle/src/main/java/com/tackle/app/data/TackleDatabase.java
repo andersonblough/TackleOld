@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class TackleDatabase extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "tackle";
-    private static final int DATABASE_VERSION = 24;
+    private static final int DATABASE_VERSION = 25;
 
     private static final String DATABASE_CREATE_TACKLE_ITEMS = "create table " + TackleContract.TackleEvent.TABLE_NAME + "("
             + TackleContract.TackleEvent._ID + " integer primary key autoincrement, "
@@ -69,8 +69,7 @@ public class TackleDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_CREATE_REMINDERS = "create table " + TackleContract.Reminders.TABLE_NAME + "("
             + TackleContract.Reminders.ID + " integer primary key autoincrement, "
             + TackleContract.Reminders.EVENT_ID + " integer, "
-            + TackleContract.Reminders.TIMEZONE + " text, "
-            + TackleContract.Reminders.DATE_TIME + " integer);";
+            + TackleContract.Reminders.MINUTES + " integer);";
 
     private static final String INITIALIZE_CATEGORIES = "INSERT INTO " + TackleContract.Categories.TABLE_NAME + "("
             + TackleContract.Categories._ID + "," +  TackleContract.Categories.CATEGORY_NAME + "," + TackleContract.Categories.COLOR

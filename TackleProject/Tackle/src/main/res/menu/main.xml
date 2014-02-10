@@ -1,6 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/today"
+        android:title="Today"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/add"
         android:title="ADD"
         app:showAsAction="always"
@@ -28,9 +33,5 @@
         android:title="Tackle Wall"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/today"
-        android:title="Today"
-        android:orderInCategory="0"
-        app:showAsAction="always" />
+
 </menu>

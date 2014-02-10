@@ -15,13 +15,13 @@ import com.tackle.app.data.TackleProvider;
 /**
  * Created by Bill on 8/6/13.
  */
-public class DeleteDialog extends DialogFragment {
+public class DeleteCategoryDialog extends DialogFragment {
 
     private long id;
 
     private DeleteCategoryListener mListener;
 
-    public DeleteDialog(long id){
+    public DeleteCategoryDialog(long id){
         this.id = id;
     }
 

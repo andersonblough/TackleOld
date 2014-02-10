@@ -25,18 +25,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
-import android.view.ViewPropertyAnimator;
-import android.view.ViewTreeObserver;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tackle.app.Dialogs.ColorPickerDialog;
-import com.tackle.app.Dialogs.DeleteDialog;
+import com.tackle.app.Dialogs.DeleteCategoryDialog;
 import com.tackle.app.Weather.JSONWeatherParser;
 import com.tackle.app.Weather.Weather;
 import com.tackle.app.Weather.WeatherHTTPClient;
@@ -58,7 +52,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderManager.LoaderCallbacks<Cursor>, ColorPickerDialog.CategoryPickerListener, DeleteDialog.DeleteCategoryListener {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderManager.LoaderCallbacks<Cursor>, ColorPickerDialog.CategoryPickerListener, DeleteCategoryDialog.DeleteCategoryListener {
 
     private static final int MILLI_PER_SECOND = 1000;
     private static final int SEC_PER_HOUR = 3600;
@@ -95,8 +89,6 @@ public class MainActivity extends ActionBarActivity
     private EnhancedListView listView;
 
     private FragmentManager fragmentManager;
-
-    HashMap<Long, Integer> mItemIdTopMap = new HashMap<Long, Integer>();
 
 
 
@@ -243,75 +235,14 @@ public class MainActivity extends ActionBarActivity
 
     }
 
-    public interface TackleItemCallback{
-        public void onItemTackled(int position);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        currentCursor.close();
     }
 
-    private void animateRemoval(final ListView listview, View viewToRemove) {
-        int firstVisiblePosition = listview.getFirstVisiblePosition();
-        for (int i = 0; i < listview.getChildCount(); ++i) {
-            View child = listview.getChildAt(i);
-            if (child != viewToRemove) {
-                int position = firstVisiblePosition + i;
-                long itemId = mTackleListAdapter.getItemId(position);
-                mItemIdTopMap.put(itemId, child.getTop());
-            }
-        }
-        // Delete the item from the adapter
-        int position = listView.getPositionForView(viewToRemove);
-        listView.delete(position);
-
-        final ViewTreeObserver observer = listview.getViewTreeObserver();
-        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            public boolean onPreDraw() {
-                observer.removeOnPreDrawListener(this);
-                boolean firstAnimation = true;
-                int firstVisiblePosition = listview.getFirstVisiblePosition();
-                for (int i = 0; i < listview.getChildCount(); ++i) {
-                    final View child = listview.getChildAt(i);
-                    int position = firstVisiblePosition + i;
-                    long itemId = mTackleListAdapter.getItemId(position);
-                    Integer startTop = mItemIdTopMap.get(itemId);
-                    int top = child.getTop();
-                    if (startTop != null) {
-                        if (startTop != top) {
-                            int delta = startTop - top;
-                            child.setTranslationY(delta);
-                            child.animate().setDuration(300).translationY(0).setInterpolator(new DecelerateInterpolator());
-                            if (firstAnimation) {
-                                child.animate().withEndAction(new Runnable() {
-                                    public void run() {
-                                        //mBackgroundContainer.hideBackground();
-                                        listView.setEnabled(true);
-                                    }
-                                });
-                                firstAnimation = false;
-                            }
-                        }
-                    } else {
-                        // Animate new views along with the others. The catch is that they did not
-                        // exist in the start state, so we must calculate their starting position
-                        // based on neighboring views.
-                        int childHeight = child.getHeight() + listview.getDividerHeight();
-                        startTop = top + (i > 0 ? childHeight : -childHeight);
-                        int delta = startTop - top;
-                        child.setTranslationY(delta);
-                        child.animate().setDuration(300).translationY(0).setInterpolator(new DecelerateInterpolator());
-                        if (firstAnimation) {
-                            child.animate().withEndAction(new Runnable() {
-                                public void run() {
-                                    //mBackgroundContainer.hideBackground();
-                                    listView.setEnabled(true);
-                                }
-                            });
-                            firstAnimation = false;
-                        }
-                    }
-                }
-                mItemIdTopMap.clear();
-                return true;
-            }
-        });
+    public interface TackleItemCallback{
+        public void onItemTackled(int position);
     }
 
     @Override
@@ -627,7 +558,7 @@ public class MainActivity extends ActionBarActivity
         TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
         Calendar cal  = Calendar.getInstance();
         cal.setTimeInMillis(date);
-        int month  = cal.get(Calendar.MONTH);
+        int month = cal.get(Calendar.MONTH);
         String monthTitle = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US);
         String year = String.valueOf(cal.get(Calendar.YEAR));
 

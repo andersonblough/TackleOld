@@ -1,8 +1,10 @@
 package com.tackle.app;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -27,7 +29,8 @@ import java.util.Calendar;
 public class AddActivity extends ActionBarActivity {
     private int mType;
     private long mCategory;
-    private long mDate;
+    private long mStartDate;
+    private long mEndDate;
     private TackleEditText tackleText;
     private ActionBar actionBar;
     SpinnerAdapter mSpinnerAdapter;
@@ -53,7 +56,8 @@ public class AddActivity extends ActionBarActivity {
                     ContentValues values = new ContentValues();
                     values.put(TackleContract.TackleEvent.NAME, textView.getText().toString());
                     values.put(TackleContract.TackleEvent.CATEGORY_ID, mCategory);
-                    values.put(TackleContract.TackleEvent.START_DATE, mDate);
+                    values.put(TackleContract.TackleEvent.START_DATE, mStartDate);
+                    values.put(TackleContract.TackleEvent.END_DATE, mEndDate);
                     values.put(TackleContract.TackleEvent.TYPE, mType);
                     values.put(TackleContract.TackleEvent.ALL_DAY, 0);
 
@@ -88,7 +92,7 @@ public class AddActivity extends ActionBarActivity {
     private void setUpMonthImage() {
         TypedArray monthImages = getResources().obtainTypedArray(R.array.months);
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(mDate);
+        cal.setTimeInMillis(mStartDate);
         int month = cal.get(Calendar.MONTH);
 
         ImageView monthImage = (ImageView) findViewById(R.id.month_image);
@@ -99,17 +103,18 @@ public class AddActivity extends ActionBarActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null){
             mType = extras.getInt("type");
-            mDate = extras.getLong("dateTime");
+            mStartDate = extras.getLong("dateTime");
             mCategory = extras.getLong("category");
         }
         else {
             mType = 1;
-            mDate = System.currentTimeMillis();
+            mStartDate = System.currentTimeMillis();
             mCategory = 1;
         }
         if (mCategory == 0){
             mCategory = 1;
         }
+        mEndDate = mStartDate + (60 * 60 * 1000);
 
 
 
@@ -152,7 +157,22 @@ public class AddActivity extends ActionBarActivity {
 
     public void onMoreClicked(View view){
         //Toast.makeText(this, "Edit More", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(tackleText.getText())){
+            return;
+        }
+        ContentValues values = new ContentValues();
+        values.put(TackleContract.TackleEvent.NAME, tackleText.getText().toString());
+        values.put(TackleContract.TackleEvent.CATEGORY_ID, mCategory);
+        values.put(TackleContract.TackleEvent.START_DATE, mStartDate);
+        values.put(TackleContract.TackleEvent.END_DATE, mEndDate);
+        values.put(TackleContract.TackleEvent.TYPE, mType);
+        values.put(TackleContract.TackleEvent.ALL_DAY, 0);
+
+        Uri uri = getContentResolver().insert(TackleContract.TackleEvent.CONTENT_URI, values);
+        long id = ContentUris.parseId(uri);
         Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra("id", id);
         startActivityForResult(intent, 2);
+        overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
     }
 }

@@ -42,6 +42,8 @@ public class DateTimeFragment extends Fragment {
 
     private int type;
 
+    public DateTimeFragment(){}
+
     public DateTimeFragment(Cursor cursor){
         super();
         mCursor = cursor;
@@ -96,6 +98,10 @@ public class DateTimeFragment extends Fragment {
 
             //set up visibility of enddate based on if its an event or not
             endDate.setVisibility(View.VISIBLE);
+        }
+        else {
+            //hide the To label
+            startDate.hideLabel();
         }
 
         if (allDay == 1){

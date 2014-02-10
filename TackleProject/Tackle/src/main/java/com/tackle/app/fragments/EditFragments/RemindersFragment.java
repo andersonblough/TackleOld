@@ -1,8 +1,15 @@
 package com.tackle.app.fragments.EditFragments;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +17,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tackle.app.Dialogs.DatePickerFragment;
 import com.tackle.app.Dialogs.NumberPickerFragment;
 import com.tackle.app.R;
+import com.tackle.app.data.TackleContract;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,7 +35,7 @@ import java.util.Date;
 /**
  * Created by Bill on 1/16/14.
  */
-public class RemindersFragment extends Fragment {
+public class RemindersFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     long untilDate;
     int choice;
     int weekVisibility;
@@ -33,14 +44,26 @@ public class RemindersFragment extends Fragment {
     int untilPos;
     int untilCount;
 
+    long eventID;
+
     private GridView freqGrid;
     private GridView weekGrid;
     private GridView untilGrid;
+    private LinearLayout remindersList;
+    private TextView addReminder;
 
     private UntilAdapter untilAdapter;
+    private ReminderAdapter reminderAdapter;
 
     RelativeLayout weekLayout;
     RelativeLayout untilLayout;
+
+    private Cursor mCursor;
+
+    public RemindersFragment(Cursor cursor){
+        super();
+        mCursor = cursor;
+    }
 
     public RemindersFragment(){
         super();
@@ -77,6 +100,14 @@ public class RemindersFragment extends Fragment {
 
         //create until adapter
         untilAdapter = new UntilAdapter();
+        // create reminder adapter
+        reminderAdapter = new ReminderAdapter();
+        getActivity().getSupportLoaderManager().initLoader(1, null, this);
+
+        //set up the id for the event
+        eventID = 3;
+
+
 
     }
 
@@ -98,6 +129,10 @@ public class RemindersFragment extends Fragment {
         weekLayout = (RelativeLayout) view.findViewById(R.id.weekDays);
         untilLayout = (RelativeLayout) view.findViewById(R.id.until);
 
+        //set up the reminders list
+        remindersList = (LinearLayout) view.findViewById(R.id.reminder_container);
+        addReminder = (TextView) view.findViewById(R.id.add_reminder);
+
         return view;
     }
 
@@ -118,6 +153,19 @@ public class RemindersFragment extends Fragment {
         weekGrid.setAdapter(weekAdapter);
 
         untilGrid.setAdapter(untilAdapter);
+
+        //add reminders to list and set click listener
+        addReminder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // temporarily add reminders to database
+
+                ContentValues reminder = new ContentValues();
+                reminder.put(TackleContract.Reminders.EVENT_ID, eventID);
+                reminder.put(TackleContract.Reminders.MINUTES, 45);
+                getActivity().getContentResolver().insert(TackleContract.Reminders.CONTENT_URI, reminder);
+            }
+        });
 
         //set up grid views with values
         if (choice != -1){
@@ -222,6 +270,11 @@ public class RemindersFragment extends Fragment {
         outState.putInt("untilCount", untilCount);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     public void setUntilDate(long dateTime){
         untilDate = dateTime;
         Date date = new Date(untilDate);
@@ -237,6 +290,32 @@ public class RemindersFragment extends Fragment {
         else {
             untilAdapter.setCount(String.valueOf(untilCount) + " times");
         }
+
+    }
+
+    private void setRemindersList(){
+        remindersList.removeAllViews();
+        final int count = reminderAdapter.getCount();
+        for (int i = 0; i < count; i++){
+            View v = reminderAdapter.getView(i, null, null);
+            remindersList.addView(v);
+        }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), TackleContract.Reminders.CONTENT_URI, null, null, null, null);
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        reminderAdapter.setCursor(cursor);
+        setRemindersList();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
     }
 
@@ -293,6 +372,99 @@ public class RemindersFragment extends Fragment {
             }
             return view;
         }
+    }
+
+    private class ReminderAdapter extends BaseAdapter{
+        private Cursor c;
+
+        public void setCursor(Cursor cursor){
+            if (c != null){
+                c.close();
+                c = null;
+            }
+            c = cursor;
+        }
+
+        public Cursor getCursor(){
+            return c;
+        }
+
+        @Override
+        public int getCount() {
+            if (c == null){
+                return 0;
+            }
+            return c.getCount();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup viewGroup) {
+            View view = convertView;
+            if (view == null){
+                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(R.layout.cell_reminder, viewGroup, false);
+            }
+
+            TextView reminderLabel = (TextView) view.findViewById(R.id.reminder_text);
+            ImageView remove = (ImageView) view.findViewById(R.id.remove);
+
+            if (c.moveToPosition(position)){
+                int minBefore = c.getInt(c.getColumnIndex(TackleContract.Reminders.MINUTES));
+                String reminderText = "";
+                if (minBefore == 0){
+                    reminderText = "On time";
+                }
+                else if (minBefore < 60){
+                    reminderText = minBefore + " minutes";
+                }
+                else if (minBefore == 60){
+                    reminderText = "1 hour";
+                }
+                else if (minBefore == (24 * 60)){
+                    reminderText = "1 day";
+                }
+                else if (minBefore < (24 * 60)){
+                    int hours = minBefore / 60;
+                    reminderText = hours + " hours";
+                }
+                else if (minBefore == (7 * 24 * 60)){
+                    reminderText = "1 week";
+                }
+                reminderLabel.setText(reminderText);
+                final int pos = c.getPosition();
+
+                remove.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //Toast.makeText(getActivity(), String.valueOf(pos), Toast.LENGTH_SHORT).show();
+                        deleteView(pos);
+                    }
+                });
+            }
+            final long id = c.getLong(c.getColumnIndex(TackleContract.Reminders.ID));
+            view.setTag(id);
+            view.setPadding(12, 2, 12, 2);
+
+            return view;
+        }
+    }
+
+    private void deleteView(int position){
+        Cursor cursor = reminderAdapter.getCursor();
+        cursor.moveToPosition(position);
+        long id = cursor.getLong(cursor.getColumnIndex(TackleContract.Reminders.ID));
+        Uri uri = ContentUris.withAppendedId(TackleContract.Reminders.CONTENT_URI, id);
+        getActivity().getContentResolver().delete(uri, null, null);
     }
 
 
