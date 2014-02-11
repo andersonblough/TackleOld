@@ -44,7 +44,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
     int untilPos;
     int untilCount;
 
-    long eventID;
+    private long mID;
 
     private GridView freqGrid;
     private GridView weekGrid;
@@ -102,12 +102,14 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         untilAdapter = new UntilAdapter();
         // create reminder adapter
         reminderAdapter = new ReminderAdapter();
-        getActivity().getSupportLoaderManager().initLoader(1, null, this);
 
         //set up the id for the event
-        eventID = 3;
-
-
+        if (mCursor.moveToFirst()){
+            mID = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent._ID));
+        }
+        Bundle args = new Bundle();
+        args.putLong("id", mID);
+        getActivity().getSupportLoaderManager().initLoader(1, args, this);
 
     }
 
@@ -159,9 +161,8 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onClick(View view) {
                 // temporarily add reminders to database
-
                 ContentValues reminder = new ContentValues();
-                reminder.put(TackleContract.Reminders.EVENT_ID, eventID);
+                reminder.put(TackleContract.Reminders.EVENT_ID, mID);
                 reminder.put(TackleContract.Reminders.MINUTES, 45);
                 getActivity().getContentResolver().insert(TackleContract.Reminders.CONTENT_URI, reminder);
             }
@@ -304,12 +305,15 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        CursorLoader cursorLoader = new CursorLoader(getActivity(), TackleContract.Reminders.CONTENT_URI, null, null, null, null);
+        String[] projection = new String[]{TackleContract.Reminders.ID, TackleContract.Reminders.EVENT_ID, TackleContract.Reminders.MINUTES};
+        String selection = TackleContract.Reminders.EVENT_ID + "=" + String.valueOf(bundle.getLong("id"));
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), TackleContract.Reminders.CONTENT_URI, projection, selection, null, null);
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        //Toast.makeText(getActivity(), String.valueOf(cursor.getCount()), Toast.LENGTH_SHORT).show();
         reminderAdapter.setCursor(cursor);
         setRemindersList();
     }

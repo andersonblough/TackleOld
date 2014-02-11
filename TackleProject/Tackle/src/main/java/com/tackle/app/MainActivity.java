@@ -90,8 +90,6 @@ public class MainActivity extends ActionBarActivity
 
     private FragmentManager fragmentManager;
 
-
-
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -101,7 +99,6 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-
 
 
     @Override
