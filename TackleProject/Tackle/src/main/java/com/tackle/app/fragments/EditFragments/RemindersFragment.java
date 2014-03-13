@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.tackle.app.Dialogs.DatePickerFragment;
 import com.tackle.app.Dialogs.NumberPickerFragment;
+import com.tackle.app.Dialogs.RemindersDialog;
 import com.tackle.app.R;
 import com.tackle.app.data.TackleContract;
 
@@ -60,12 +61,12 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
 
     private Cursor mCursor;
 
-    public RemindersFragment(Cursor cursor){
+    public RemindersFragment(Cursor cursor) {
         super();
         mCursor = cursor;
     }
 
-    public RemindersFragment(){
+    public RemindersFragment() {
         super();
     }
 
@@ -76,7 +77,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         setRetainInstance(true);
 
         //set up values
-        if (savedState != null){
+        if (savedState != null) {
             // restore from state
             choice = savedState.getInt("choice");
             weekVisibility = savedState.getInt("weekVisible");
@@ -86,8 +87,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             untilDate = savedState.getLong("untilDate");
             untilCount = savedState.getInt("untilCount");
 
-        }
-        else {
+        } else {
             // first time, set up everything
             untilDate = System.currentTimeMillis();
             choice = -1;
@@ -104,7 +104,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         reminderAdapter = new ReminderAdapter();
 
         //set up the id for the event
-        if (mCursor.moveToFirst()){
+        if (mCursor.moveToFirst()) {
             mID = mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent._ID));
         }
         Bundle args = new Bundle();
@@ -112,7 +112,6 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         getActivity().getSupportLoaderManager().initLoader(1, args, this);
 
     }
-
 
 
     @Override
@@ -161,23 +160,26 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onClick(View view) {
                 // temporarily add reminders to database
-                ContentValues reminder = new ContentValues();
+                /*ContentValues reminder = new ContentValues();
                 reminder.put(TackleContract.Reminders.EVENT_ID, mID);
                 reminder.put(TackleContract.Reminders.MINUTES, 45);
                 getActivity().getContentResolver().insert(TackleContract.Reminders.CONTENT_URI, reminder);
+                */
+                RemindersDialog remindersDialog = new RemindersDialog(mID);
+                remindersDialog.show(getActivity().getSupportFragmentManager(), "reminders");
             }
         });
 
         //set up grid views with values
-        if (choice != -1){
+        if (choice != -1) {
             freqGrid.setItemChecked(choice, true);
         }
 
-        for (int i = 0; i < daysChosen.length; i++){
+        for (int i = 0; i < daysChosen.length; i++) {
             weekGrid.setItemChecked(i, daysChosen[i]);
         }
 
-        switch (untilPos){
+        switch (untilPos) {
             case 0:
                 untilGrid.setItemChecked(untilPos, true);
                 break;
@@ -189,10 +191,9 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
                 break;
             case 2:
                 untilGrid.setItemChecked(untilPos, true);
-                if (untilCount == 1){
+                if (untilCount == 1) {
                     untilAdapter.setCount("Once");
-                }
-                else {
+                } else {
                     untilAdapter.setCount(String.valueOf(untilCount) + " times");
                 }
 
@@ -214,8 +215,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
                 }
                 if (choice == 1) {
                     weekVisibility = View.VISIBLE;
-                }
-                else {
+                } else {
                     weekVisibility = View.GONE;
                 }
                 weekLayout.setVisibility(weekVisibility);
@@ -226,10 +226,9 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         weekGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                if (daysChosen[position]){
+                if (daysChosen[position]) {
                     daysChosen[position] = false;
-                }
-                else {
+                } else {
                     daysChosen[position] = true;
                 }
             }
@@ -239,7 +238,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 untilPos = position;
-                switch (position){
+                switch (position) {
                     case 0:
                         untilAdapter.setUntil("Until");
                         untilDate = System.currentTimeMillis();
@@ -276,28 +275,27 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         super.onDestroy();
     }
 
-    public void setUntilDate(long dateTime){
+    public void setUntilDate(long dateTime) {
         untilDate = dateTime;
         Date date = new Date(untilDate);
         DateFormat formater = new SimpleDateFormat("M/dd/yyyy");
         untilAdapter.setUntil(formater.format(date));
     }
 
-    public void setCountValue(int count){
+    public void setCountValue(int count) {
         untilCount = count;
-        if (untilCount == 1){
+        if (untilCount == 1) {
             untilAdapter.setCount("Once");
-        }
-        else {
+        } else {
             untilAdapter.setCount(String.valueOf(untilCount) + " times");
         }
 
     }
 
-    private void setRemindersList(){
+    private void setRemindersList() {
         remindersList.removeAllViews();
         final int count = reminderAdapter.getCount();
-        for (int i = 0; i < count; i++){
+        for (int i = 0; i < count; i++) {
             View v = reminderAdapter.getView(i, null, null);
             remindersList.addView(v);
         }
@@ -307,7 +305,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = new String[]{TackleContract.Reminders.ID, TackleContract.Reminders.EVENT_ID, TackleContract.Reminders.MINUTES};
         String selection = TackleContract.Reminders.EVENT_ID + "=" + String.valueOf(bundle.getLong("id"));
-        CursorLoader cursorLoader = new CursorLoader(getActivity(), TackleContract.Reminders.CONTENT_URI, projection, selection, null, null);
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), TackleContract.Reminders.CONTENT_URI, projection, selection, null, TackleContract.Reminders.MINUTES + " ASC");
         return cursorLoader;
     }
 
@@ -323,17 +321,17 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
 
     }
 
-    private class UntilAdapter extends BaseAdapter{
+    private class UntilAdapter extends BaseAdapter {
         String until = "Until";
         String count = "Count";
 
-        public void setUntil(String until){
+        public void setUntil(String until) {
             this.until = until;
             count = "Count";
             notifyDataSetChanged();
         }
 
-        public void setCount(String count){
+        public void setCount(String count) {
             this.count = count;
             until = "Until";
             untilDate = System.currentTimeMillis();
@@ -358,12 +356,12 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         @Override
         public View getView(int position, View convertView, ViewGroup viewGroup) {
             TextView view = (TextView) convertView;
-            if (view == null){
+            if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = (TextView) inflater.inflate(R.layout.picker_text, viewGroup, false);
             }
 
-            switch (position){
+            switch (position) {
                 case 0:
                     view.setText("Forever");
                     break;
@@ -378,24 +376,24 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-    private class ReminderAdapter extends BaseAdapter{
+    private class ReminderAdapter extends BaseAdapter {
         private Cursor c;
 
-        public void setCursor(Cursor cursor){
-            if (c != null){
+        public void setCursor(Cursor cursor) {
+            if (c != null) {
                 c.close();
                 c = null;
             }
             c = cursor;
         }
 
-        public Cursor getCursor(){
+        public Cursor getCursor() {
             return c;
         }
 
         @Override
         public int getCount() {
-            if (c == null){
+            if (c == null) {
                 return 0;
             }
             return c.getCount();
@@ -414,7 +412,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         @Override
         public View getView(int position, View convertView, ViewGroup viewGroup) {
             View view = convertView;
-            if (view == null){
+            if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.cell_reminder, viewGroup, false);
             }
@@ -422,26 +420,23 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
             TextView reminderLabel = (TextView) view.findViewById(R.id.reminder_text);
             ImageView remove = (ImageView) view.findViewById(R.id.remove);
 
-            if (c.moveToPosition(position)){
+            if (c.moveToPosition(position)) {
                 int minBefore = c.getInt(c.getColumnIndex(TackleContract.Reminders.MINUTES));
                 String reminderText = "";
-                if (minBefore == 0){
+                if (minBefore == 0) {
                     reminderText = "On time";
-                }
-                else if (minBefore < 60){
+                } else if (minBefore < 60) {
                     reminderText = minBefore + " minutes";
-                }
-                else if (minBefore == 60){
+                } else if (minBefore == 60) {
                     reminderText = "1 hour";
-                }
-                else if (minBefore == (24 * 60)){
-                    reminderText = "1 day";
-                }
-                else if (minBefore < (24 * 60)){
+                } else if (minBefore < (24 * 60)) {
                     int hours = minBefore / 60;
                     reminderText = hours + " hours";
-                }
-                else if (minBefore == (7 * 24 * 60)){
+                } else if (minBefore == (24 * 60)) {
+                    reminderText = "1 day";
+                } else if (minBefore == (2 * 24 * 60)) {
+                    reminderText = "2 days";
+                } else if (minBefore == (7 * 24 * 60)) {
                     reminderText = "1 week";
                 }
                 reminderLabel.setText(reminderText);
@@ -463,7 +458,7 @@ public class RemindersFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-    private void deleteView(int position){
+    private void deleteView(int position) {
         Cursor cursor = reminderAdapter.getCursor();
         cursor.moveToPosition(position);
         long id = cursor.getLong(cursor.getColumnIndex(TackleContract.Reminders.ID));

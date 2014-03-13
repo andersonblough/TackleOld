@@ -4,9 +4,16 @@
     <color name="Tackle_Green">#0DAD4B</color>
     <color name="Selection">#BBB</color>
 
+    <color name="Black60">#9666</color>
+    <color name="Black90">#7000</color>
+
     <color name="dark_gray">#A0A0A0</color>
     <color name="near_white">#fdfdfd</color>
     <color name="black">#000</color>
+
+    <color name="transparent_white">#20ffffff</color>
+
+    <color name="light_green">#89c68a</color>
 
     <color name="lighter">#f1f1f2</color>
     <color name="light">#DCDDDE</color>

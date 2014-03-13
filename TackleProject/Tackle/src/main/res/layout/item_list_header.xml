@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:text="Items"
+        android:layout_gravity="center"
+        android:textSize="28dp"
+        android:textColor="@color/Tackle_Green"
+        android:fontFamily="sans-serif-light" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/item_text"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:background="@drawable/rounded_rect_lighter"
+            android:textCursorDrawable="@null"
+            android:hint="Add an item"
+            android:inputType="textCapSentences"
+            android:imeOptions="actionDone"
+            android:fontFamily="sans-serif-light"
+            android:textColor="@color/black" />
+
+        <ImageView
+            android:id="@+id/amount"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:background="@drawable/selector_category_drawer"
+            android:src="@drawable/ic_amount"
+            android:clickable="true"
+            android:visibility="invisible"
+            android:layout_toLeftOf="@+id/add" />
+
+
+        <ImageView
+            android:id="@+id/add"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:background="@drawable/selector_category_drawer"
+            android:src="@drawable/ic_add_it"
+            android:clickable="true"
+            android:visibility="invisible"
+            android:layout_alignParentRight="true" />
+
+
+    </RelativeLayout>
+
+</LinearLayout>

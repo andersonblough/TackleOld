@@ -11,6 +11,7 @@
         <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
         <item name="android:actionBarWidgetTheme">@style/Theme.stylingactionbar.widget</item>
         <item name="android:actionDropDownStyle">@style/MyDropDownStyle</item>
+        <item name="android:actionModeBackground">@color/Tackle_Green</item>
         <item name="android:spinnerItemStyle">@style/MySpinnerItemStyle</item>
         <item name="android:spinnerDropDownItemStyle">@style/MyDropDownItemStyle</item>
         <!-- Customize your theme here. -->

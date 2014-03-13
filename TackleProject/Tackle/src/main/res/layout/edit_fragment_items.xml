@@ -13,15 +13,16 @@
         android:layout_margin="8dp"
         android:background="@drawable/bg_list_normal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:text="Items"
-            android:textSize="28dp"
-            android:textColor="@color/Tackle_Green"
-            android:fontFamily="sans-serif-light"/>
 
+        <com.tackle.app.views.EnhancedListView
+            android:id="@+id/item_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="12dp"
+            android:choiceMode="multipleChoiceModal"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="4dp"
+            android:layout_marginRight="12dp" />
 
     </LinearLayout>
 

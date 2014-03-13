@@ -1,5 +1,7 @@
 package com.tackle.app.data;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -12,7 +14,7 @@ public class TackleContract {
     public static final String AUTHORITY = "com.tackle.app.data.TackleProvider";
 
 
-    public interface TackleEventColumns{
+    public interface TackleEventColumns {
         public static final String NAME = "name";
         public static final String TYPE = "type";
         public static final String START_DATE = "start_date";
@@ -28,13 +30,12 @@ public class TackleContract {
         public static final String STATUS = "status";
     }
 
-    public interface CategoryColomns{
+    public interface CategoryColomns {
         public static final String CATEGORY_NAME = "cat_name";
         public static final String COLOR = "color";
     }
 
-    public static final class Categories implements BaseColumns, CategoryColomns
-    {
+    public static final class Categories implements BaseColumns, CategoryColomns {
         public static final long DEFAULT_ID = 1;
         public static final String DEFAULT_TITLE = "Inbox";
         public static final String DEFAULT_COLOR = "#CCCCCC";
@@ -52,8 +53,14 @@ public class TackleContract {
         public static final int CATEGORY_ID = 110;
     }
 
-    public static final class TackleEvent implements BaseColumns, TackleEventColumns
-    {
+    public static final class TackleEvent implements BaseColumns, TackleEventColumns {
+        public static void delete(ContentResolver contentResolver, long id) {
+            Uri uri = ContentUris.withAppendedId(TackleEvent.CONTENT_URI, id);
+            contentResolver.delete(uri, null, null);
+            contentResolver.delete(ListItems.CONTENT_URI, ListItems.EVENT_ID + "=" + id, null);
+            contentResolver.delete(Reminders.CONTENT_URI, Reminders.EVENT_ID + "=" + id, null);
+        }
+
         public static final String TABLE_NAME = "tackle_events";
 
         private static final String BASE_PATH = "/" + TABLE_NAME;
@@ -68,8 +75,7 @@ public class TackleContract {
 
     }
 
-    public static final class Reminders
-    {
+    public static final class Reminders {
         public static final String TABLE_NAME = "reminders";
 
         private static final String BASE_PATH = "/" + TABLE_NAME;
@@ -88,8 +94,7 @@ public class TackleContract {
 
     }
 
-    public static final class ListItems
-    {
+    public static final class ListItems {
         public static final String TABLE_NAME = "listitems";
 
         private static final String BASE_PATH = "/" + TABLE_NAME;
@@ -109,8 +114,7 @@ public class TackleContract {
         public static final String EVENT_ID = "event_id";
     }
 
-    public static final class TackleInstances implements BaseColumns, TackleEventColumns, CategoryColomns
-    {
+    public static final class TackleInstances implements BaseColumns, TackleEventColumns, CategoryColomns {
         public static final String TABLE_NAME = "instances";
 
         private static final String BASE_PATH = "/" + TABLE_NAME;

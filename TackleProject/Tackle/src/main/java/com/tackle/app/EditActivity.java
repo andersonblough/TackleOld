@@ -47,7 +47,7 @@ public class EditActivity extends ActionBarActivity implements
         TimePickerFragment.TimeChangeListener,
         CategoryPickerDialog.CategorySelectedListener,
         DeleteTackleItemDialog.DeleteItemListener,
-        SetTitleDialog.TitleChangeListener{
+        SetTitleDialog.TitleChangeListener {
 
     private ViewPager mViewPager;
     private EditPagerAdapter pagerAdapter;
@@ -72,7 +72,7 @@ public class EditActivity extends ActionBarActivity implements
         setUpCursor();
         setUpActionBar();
 
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             FragmentManager fm = getSupportFragmentManager();
             mDateTimeFragment = (DateTimeFragment) fm.getFragment(savedInstanceState, DateTimeFragment.class.getName());
             mRemindersFragment = (RemindersFragment) fm.getFragment(savedInstanceState, RemindersFragment.class.getName());
@@ -80,16 +80,15 @@ public class EditActivity extends ActionBarActivity implements
             mShareFragment = (ShareFragment) fm.getFragment(savedInstanceState, ShareFragment.class.getName());
             mItemsFragment = (ItemsFragment) fm.getFragment(savedInstanceState, ItemsFragment.class.getName());
             mTitle = savedInstanceState.getString("title");
-        }
-        else {
-            if (mCursor.moveToFirst()){
+        } else {
+            if (mCursor.moveToFirst()) {
                 mTitle = mCursor.getString(mCursor.getColumnIndex(TackleContract.TackleEvent.NAME));
             }
             mDateTimeFragment = new DateTimeFragment(mCursor);
             mRemindersFragment = new RemindersFragment(mCursor);
             mNotesFragment = new NotesFragment(mCursor);
             mShareFragment = new ShareFragment();
-            mItemsFragment = new ItemsFragment();
+            mItemsFragment = new ItemsFragment(mCursor);
         }
 
         Fragment[] fragments = {mDateTimeFragment, mRemindersFragment, mNotesFragment, mShareFragment, mItemsFragment};
@@ -130,7 +129,7 @@ public class EditActivity extends ActionBarActivity implements
         mCursor.moveToFirst();
         int type = mCursor.getInt(mCursor.getColumnIndex(TackleContract.TackleEvent.TYPE));
         int positon;
-        switch (type){
+        switch (type) {
             case TackleEvent.Type.TODO:
                 positon = 0;
                 break;
@@ -160,7 +159,7 @@ public class EditActivity extends ActionBarActivity implements
             }
         });
         mMonthImage = (ImageView) findViewById(R.id.month_image);
-        if (mCursor.moveToFirst()){
+        if (mCursor.moveToFirst()) {
             setMonthImage(mCursor.getLong(mCursor.getColumnIndex(TackleContract.TackleEvent.START_DATE)));
         }
     }
@@ -191,7 +190,7 @@ public class EditActivity extends ActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 setResult(RESULT_OK);
                 finish();
@@ -213,9 +212,9 @@ public class EditActivity extends ActionBarActivity implements
 
     }
 
-    private void setUpCursor(){
+    private void setUpCursor() {
         mID = getIntent().getLongExtra("id", 0);
-        if (mID > 0){
+        if (mID > 0) {
             Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, mID);
             mCursor = getContentResolver().query(uri, null, null, null, null);
         }
@@ -223,16 +222,14 @@ public class EditActivity extends ActionBarActivity implements
 
     @Override
     public void onDateChanged(long dateTime, String tag) {
-        if (tag.equals(DatePickerFragment.UNTILDATE)){
-            if (dateTime != -1){
+        if (tag.equals(DatePickerFragment.UNTILDATE)) {
+            if (dateTime != -1) {
                 mRemindersFragment.setUntilDate(dateTime);
             }
-        }
-        else if (tag.equals(DatePickerFragment.STARTDATE)){
+        } else if (tag.equals(DatePickerFragment.STARTDATE)) {
             mDateTimeFragment.setStartDate(dateTime);
             setMonthImage(dateTime);
-        }
-        else if (tag.equals(DatePickerFragment.ENDDATE)){
+        } else if (tag.equals(DatePickerFragment.ENDDATE)) {
             mDateTimeFragment.setEndDate(dateTime);
         }
 
@@ -246,10 +243,9 @@ public class EditActivity extends ActionBarActivity implements
 
     @Override
     public void onTimeChanged(long dateTime, String tag) {
-        if (tag.equals(TimePickerFragment.STARTTIME)){
+        if (tag.equals(TimePickerFragment.STARTTIME)) {
             mDateTimeFragment.setStartTime(dateTime);
-        }
-        else if (tag.equals(TimePickerFragment.ENDTIME)){
+        } else if (tag.equals(TimePickerFragment.ENDTIME)) {
             mDateTimeFragment.setEndTime(dateTime);
         }
     }
@@ -278,10 +274,10 @@ public class EditActivity extends ActionBarActivity implements
 
         private int selectedPosition;
         private int[] images = {R.drawable.ic_pager_tab_date,
-                                R.drawable.ic_pager_tab_reminder,
-                                R.drawable.ic_pager_tab_notes,
-                                R.drawable.ic_pager_tab_share,
-                                R.drawable.ic_pager_tab_more};
+                R.drawable.ic_pager_tab_reminder,
+                R.drawable.ic_pager_tab_notes,
+                R.drawable.ic_pager_tab_share,
+                R.drawable.ic_pager_tab_more};
 
         @Override
         public int getCount() {
@@ -293,7 +289,7 @@ public class EditActivity extends ActionBarActivity implements
             return null;
         }
 
-        public void setSelectedPosition(int position){
+        public void setSelectedPosition(int position) {
             selectedPosition = position;
             notifyDataSetChanged();
         }
@@ -306,24 +302,23 @@ public class EditActivity extends ActionBarActivity implements
         @Override
         public View getView(int position, View convertView, ViewGroup viewGroup) {
             View view = convertView;
-            if (convertView == null){
+            if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.cell_pager_tab_bar, viewGroup, false);
             }
             ImageView iv = (ImageView) view.findViewById(R.id.cellImage);
             iv.setImageResource(images[position]);
 
-            if (position == selectedPosition){
+            if (position == selectedPosition) {
                 view.setBackgroundResource(android.R.color.white);
-            }
-            else {
+            } else {
                 view.setBackgroundResource(android.R.color.transparent);
             }
             return view;
         }
     }
 
-    public void setMonthImage(long dateTime){
+    public void setMonthImage(long dateTime) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(dateTime);
         int month = c.get(Calendar.MONTH);

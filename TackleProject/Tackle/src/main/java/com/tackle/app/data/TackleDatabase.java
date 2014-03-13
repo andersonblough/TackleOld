@@ -72,12 +72,13 @@ public class TackleDatabase extends SQLiteOpenHelper {
             + TackleContract.Reminders.MINUTES + " integer);";
 
     private static final String INITIALIZE_CATEGORIES = "INSERT INTO " + TackleContract.Categories.TABLE_NAME + "("
-            + TackleContract.Categories._ID + "," +  TackleContract.Categories.CATEGORY_NAME + "," + TackleContract.Categories.COLOR
-            + ") VALUES(1, 'Inbox', '#CCCCCC')";
+            + TackleContract.Categories._ID + "," + TackleContract.Categories.CATEGORY_NAME + "," + TackleContract.Categories.COLOR
+            + ") VALUES(1, 'Inbox', '#B3B3B3')";
 
-    public TackleDatabase(Context context){
+    public TackleDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DATABASE_CREATE_CATEGORIES);
@@ -87,7 +88,7 @@ public class TackleDatabase extends SQLiteOpenHelper {
         db.execSQL(DATABASE_CREATE_INSTANCES);
 
         // Set up database to have an INBOX Category
-        db.execSQL("INSERT INTO categories(_id, cat_name, color) VALUES(1, 'Inbox', '#CCCCCC')");
+        db.execSQL("INSERT INTO categories(_id, cat_name, color) VALUES(1, 'Inbox', '#B3B3B3')");
 
     }
 

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="frequencies" >
+    <string-array name="frequencies">
         <item>Daily</item>
         <item>Weekly</item>
         <item>Monthly</item>
         <item>Yearly</item>
     </string-array>
 
-    <string-array name="until" >
+    <string-array name="until">
         <item>Forever</item>
         <item>Until</item>
         <item>Count</item>
@@ -60,21 +60,34 @@
         <item>What you do today can improve all your tomorrows.</item>
         <item>A goal is a dream with a deadline.</item>
         <item>The most effective way to do it, is to do it.</item>
-        <item>The hardships that I encountered in the past will help me succeed in the future.</item>
+        <item>The hardships that I encountered in the past will help me succeed in the future.
+        </item>
         <item>The more we do, the more we can do.</item>
         <item>When life happens, tackle it.</item>
         <item>You miss 100% of the shots you don\'t take.</item>
-        <item>Challenge yourself with something you know you could never do, and what you\'ll find is that you can overcome anything.</item>
+        <item>Challenge yourself with something you know you could never do, and what you\'ll find
+            is that you can overcome anything.
+        </item>
         <item>In between goals is a thing called life, that has to be lived and enjoyed.</item>
-        <item>If you want to make your dreams come true, the first thing you have to do is wake up.</item>
-        <item>People often say that motivation doesn\'t last. Well, neither does bathing. That\'s why we recommend it daily.</item>
+        <item>If you want to make your dreams come true, the first thing you have to do is wake
+            up.
+        </item>
+        <item>People often say that motivation doesn\'t last. Well, neither does bathing. That\'s
+            why we recommend it daily.
+        </item>
         <item>It always seems impossible until it\'s done.</item>
         <item>Resolutions were made to be tackled.</item>
-        <item>If you can\’t fly then run, if you can\’t run then walk, if you can\’t walk then crawl, but whatever you do you have to keep moving forward.</item>
+        <item>If you\'re bored with life - you don\'t get up every morning with a burning desire to
+            do things - you don\'t have enough goals.
+        </item>
+        <item>If you can\’t fly then run, if you can\’t run then walk, if you can\’t walk then
+            crawl, but whatever you do you have to keep moving forward.
+        </item>
+        <item>If you fail to prepare, you\'re prepared to fail.</item>
     </array>
 
     <array name="authors">
-        <item>C. S. Lewis </item>
+        <item>C. S. Lewis</item>
         <item>Eleanor Roosevelt</item>
         <item>Walt Disney</item>
         <item>Jim Rohn</item>
@@ -93,7 +106,9 @@
         <item>Zig Ziglar</item>
         <item>Nelson Mandela</item>
         <item>Tackle</item>
+        <item>Lou Holtz</item>
         <item>Martin Luther King Jr.</item>
+        <item>Mark Spitz</item>
 
     </array>
 </resources>

@@ -1,6 +1,7 @@
 package com.tackle.app;
 
 import android.app.FragmentManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +27,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -164,19 +167,13 @@ public class MainActivity extends ActionBarActivity
             @Override
             public void onItemTackled(int position) {
                 listView.discardUndo();
-                listView.delete(position + 1);
+                listView.delete(position);
             }
         });
         listView.setAdapter(mTackleListAdapter);
 
         View emptyView = findViewById(R.id.empty);
         listView.setEmptyView(emptyView);
-
-        View header = new View(this);
-        header.setMinimumHeight(16);
-        header.setClickable(false);
-
-        listView.addHeaderView(header);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -186,6 +183,51 @@ public class MainActivity extends ActionBarActivity
                 intent.putExtra("id", id);
                 startActivityForResult(intent, 2);
                 overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
+            }
+        });
+
+        listView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                int count = listView.getCheckedItemCount();
+                if (count == 1) {
+                    mode.setTitle("1 Item");
+                } else {
+                    mode.setTitle(String.valueOf(count) + " Items");
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.context_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.delete:
+                        long[] ids = listView.getCheckedItemIds();
+                        ContentResolver cr = getContentResolver();
+                        for (int i = 0; i < ids.length; i++) {
+                            long id = ids[i];
+                            Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, id);
+                            cr.delete(uri, null, null);
+                        }
+                        break;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
             }
         });
 
@@ -199,15 +241,12 @@ public class MainActivity extends ActionBarActivity
             }
         });
 
-        registerForContextMenu(listView);
-
         listView.setDismissCallback(new EnhancedListView.OnDismissCallback() {
             @Override
             public EnhancedListView.Undoable onDismiss(EnhancedListView listView, final int position) {
-                long id = listView.getItemIdAtPosition(position);
-                final Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, id);
+                final long id = listView.getItemIdAtPosition(position);
 
-                CursorWithDelete cursorWithDelete = new CursorWithDelete(currentCursor, position - 1);
+                CursorWithDelete cursorWithDelete = new CursorWithDelete(currentCursor, position);
                 mTackleListAdapter.swapCursor(cursorWithDelete);
 
                 return new EnhancedListView.Undoable() {
@@ -224,7 +263,7 @@ public class MainActivity extends ActionBarActivity
                     @Override
                     public void discard() {
                         super.discard();
-                        getContentResolver().delete(uri, null, null);
+                        TackleContract.TackleEvent.delete(getContentResolver(), id);
                     }
                 };
             }
@@ -235,7 +274,6 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        currentCursor.close();
     }
 
     public interface TackleItemCallback{
@@ -263,6 +301,7 @@ public class MainActivity extends ActionBarActivity
 
         QuoteView quoteView = (QuoteView) findViewById(R.id.quotes);
         quoteView.setUp(quotes[position], authors[position]);
+
     }
 
     @Override
@@ -270,9 +309,8 @@ public class MainActivity extends ActionBarActivity
         super.onResume();
 
         //TODO: check if the date is current and if it has changed
-
-
         showDateHeader();
+        getSupportLoaderManager().restartLoader(TACKLE_ITEMS_LOADER, null, this);
 
 
     }
@@ -401,27 +439,6 @@ public class MainActivity extends ActionBarActivity
                 overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.context_menu, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()){
-            case R.id.delete:
-                Uri uri = ContentUris.withAppendedId(TackleContract.TackleEvent.CONTENT_URI, info.id);
-                getContentResolver().delete(uri, null, null);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-
     }
 
     private void addTackleItem(int type) {
